@@ -3,552 +3,199 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Ottimo — Generatore PSCL Light</title>
+<title>Ottimo — Generatore PSCL</title>
 <style>
-:root{
-  --blue:#1d6fc4;--blue-dark:#154f96;--blue-light:#e8f2fc;
-  --teal:#00b4a0;--orange:#f07010;--green:#28a745;--green-light:#eaf7ea;
-  --gray:#f5f7fa;--border:#dde4ef;--text:#1a1a2e;--muted:#6b7a99;
-  --font:'Segoe UI',Arial,sans-serif;
-}
+:root{--blue:#2563eb;--dark:#0f172a;--orange:#f07010;--green:#16a34a;--teal:#00b4a0;--gray:#f8fafc;--border:#e5e7eb;--muted:#6b7280;--font:'Segoe UI',Arial,sans-serif}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:var(--font);background:#eef2f9;color:var(--text);min-height:100vh}
-nav{background:var(--blue-dark);padding:0 28px;display:flex;align-items:center;justify-content:space-between;height:54px;position:sticky;top:0;z-index:200;box-shadow:0 2px 10px rgba(0,0,0,.25)}
-.nl{display:flex;align-items:center;gap:10px}
-.nl-box{background:#fff;border-radius:6px;padding:3px 10px;font-weight:800;font-size:15px;color:var(--blue-dark)}
-.nl-txt{color:#fff;font-size:13px;opacity:.8}
-.nl-step{color:rgba(255,255,255,.55);font-size:12px}
-.app{max-width:1080px;margin:0 auto;padding:22px 18px 70px}
-.prog-wrap{background:#fff;border-radius:11px;padding:14px 18px;margin-bottom:18px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
-.prog{display:flex;gap:3px}
-.ps{flex:1;text-align:center;padding:7px 3px;border-radius:7px;font-size:10.5px;cursor:pointer;line-height:1.3;transition:.15s}
-.ps.done{background:var(--blue-light);color:var(--blue)}
-.ps.active{background:var(--blue);color:#fff;font-weight:700}
-.ps.todo{background:#f0f0f0;color:#bbb}
-.ps-n{display:block;font-size:9.5px;opacity:.65}
-.card{background:#fff;border-radius:12px;padding:26px 30px;box-shadow:0 2px 10px rgba(0,0,0,.07);margin-bottom:18px}
-.ctitle{font-size:19px;font-weight:700;color:var(--blue);margin-bottom:4px}
-.csub{color:var(--muted);font-size:13px;margin-bottom:20px}
+body{font-family:var(--font);background:#eef2f9;color:#111;display:flex;min-height:100vh}
+.sidebar{width:220px;background:var(--dark);color:#fff;position:fixed;top:0;left:0;height:100vh;overflow-y:auto;z-index:100}
+.slogo{padding:14px 16px;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:10px}
+.slogo svg{flex-shrink:0}
+.slogo-txt{color:#fff;font-weight:800;font-size:16px}
+.ssec{padding:14px 12px 4px;font-size:10px;font-weight:700;color:rgba(255,255,255,.35);letter-spacing:1px;text-transform:uppercase}
+.sitem{display:flex;align-items:center;gap:8px;padding:9px 16px;font-size:13px;color:rgba(255,255,255,.65);cursor:pointer;border-radius:6px;margin:1px 8px;transition:.15s}
+.sitem:hover{background:rgba(255,255,255,.08);color:#fff}
+.sitem.active{background:var(--blue);color:#fff;font-weight:600}
+.sitem.done{color:rgba(255,255,255,.85)}
+.main{margin-left:220px;flex:1}
+.topbar{background:#fff;border-bottom:1px solid var(--border);padding:0 28px;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+.topbar-t{font-size:15px;font-weight:700}
+.topbar-s{font-size:13px;color:var(--muted)}
+.content{padding:22px 28px 60px;max-width:900px}
+.card{background:#fff;border-radius:12px;border:1px solid var(--border);padding:24px 28px;margin-bottom:18px;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+.ctit{font-size:18px;font-weight:700;color:var(--blue);margin-bottom:4px}
+.csub{font-size:13px;color:var(--muted);margin-bottom:20px}
+.sbadge{display:inline-flex;align-items:center;background:#eff6ff;color:var(--blue);font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px}
 .fg{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .fg3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
 .cf{grid-column:1/-1}
-label.fl{display:block;font-weight:600;font-size:13px;margin-bottom:3px}
+.fg label,.fg3 label,.cf label{display:block;font-weight:600;font-size:13px;margin-bottom:3px}
 .fh{font-size:11px;color:var(--muted);margin-bottom:5px}
-input[type=text],input[type=number],textarea{width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:13px;font-family:var(--font);outline:none;transition:.15s}
-input:focus,textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(29,111,196,.1)}
-textarea{resize:vertical;min-height:88px}
-.yn{display:flex;gap:7px;margin-top:2px}
-.yn button{padding:6px 20px;border-radius:7px;border:2px solid var(--border);background:#fff;font-size:13px;font-weight:600;cursor:pointer;transition:.15s}
-.yn button.ay{background:var(--blue);color:#fff;border-color:var(--blue)}
-.yn button.an{background:#f0f0f0;color:#555;border-color:#ccc}
-.cbox{background:#fffae8;border:1.5px solid #e8c840;border-radius:10px;padding:14px 16px;margin-top:6px}
-.ctit{font-weight:700;color:#8a6000;margin-bottom:8px;font-size:13px}
-.cpar{font-size:11.5px;color:#7a5800;margin-bottom:10px;line-height:1.6}
-.rbox{background:var(--green-light);border:1.5px solid #5cb85c;border-radius:10px;padding:12px 14px;margin-top:10px}
-.rtit{font-weight:700;color:#2d7a2d;margin-bottom:7px;font-size:12.5px}
-table.rt{width:100%;border-collapse:collapse;font-size:12.5px}
-table.rt th{text-align:left;padding:4px 8px;color:#2d7a2d;font-size:11.5px;border-bottom:1.5px solid #a0d0a0}
-table.rt th.r,table.rt td.r{text-align:right}
-table.rt td{padding:4px 8px;border-bottom:1px solid #d4edd4}
-table.rt tr.tot td{font-weight:700;color:#2d7a2d;border-top:2px solid #5cb85c;border-bottom:none}
-.isl{border:2.5px dashed #b0c8e0;border-radius:10px;background:#f4f8ff;margin:12px 0;overflow:hidden}
-.ish{background:#dceeff;padding:9px 14px;display:flex;align-items:center;justify-content:space-between}
-.isl-lbl{font-size:11.5px;font-weight:700;color:var(--blue)}
-.isl-sub{font-size:10.5px;color:#5080a0}
+input[type=text],input[type=number],textarea{width:100%;padding:10px 13px;border:1.5px solid var(--border);border-radius:10px;font-size:13px;font-family:var(--font);outline:none;background:#fff;transition:.15s}
+input:focus,textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.1)}
+textarea{resize:vertical;min-height:90px}
+.yn{display:flex;gap:8px;margin-top:3px}
+.ynb{padding:7px 22px;border-radius:10px;border:1.5px solid var(--border);background:#fff;font-size:13px;font-weight:600;cursor:pointer;transition:.15s;color:var(--muted)}
+.ynb.ay{background:var(--blue);color:#fff;border-color:var(--blue)}
+.ynb.an{background:#f9fafb;color:#333;border-color:var(--border)}
+.isl{border:2px dashed #c7d2fe;border-radius:10px;background:#f8faff;margin-bottom:12px;overflow:hidden}
+.ish{background:#e0e7ff;padding:9px 14px;display:flex;align-items:center;justify-content:space-between}
+.isl-l{font-size:11.5px;font-weight:700;color:#3730a3}
+.isl-h{font-size:10.5px;color:#6366f1}
 .isb{padding:14px;display:flex;flex-direction:column;align-items:center;gap:9px}
 .isb.hi{padding:0}
-.isb img{width:100%;display:block;border-radius:0 0 8px 8px;max-height:300px;object-fit:contain}
+.isb img{width:100%;display:block;max-height:280px;object-fit:contain}
 .ibtns{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
-.ibtn{padding:7px 16px;border-radius:7px;border:none;font-size:12.5px;font-weight:600;cursor:pointer}
-.ibtn.p{background:var(--blue);color:#fff}
-.ibtn.s{background:#fff;color:var(--blue);border:2px solid var(--blue)}
-.ibtn.d{background:#fff;color:#c03030;border:2px solid #c03030;font-size:11px;padding:4px 12px}
-.ihint{font-size:11px;color:#8090b0;text-align:center}
-.nbtns{display:flex;justify-content:space-between;align-items:center;margin-top:6px}
-.nb{padding:10px 26px;border-radius:8px;border:none;font-size:14px;font-weight:700;cursor:pointer;transition:.15s}
-.nb.prev{background:var(--blue-light);color:var(--blue)}
-.nb.prev:disabled{background:#eee;color:#bbb;cursor:default}
+.ibtn{padding:7px 16px;border-radius:8px;border:none;font-size:12.5px;font-weight:600;cursor:pointer}
+.ibtn.up{background:var(--blue);color:#fff}
+.ibtn.pa{background:#fff;color:var(--blue);border:1.5px solid var(--blue)}
+.ibtn.rm{background:#fff;color:#dc2626;border:1.5px solid #fca5a5;font-size:11px;padding:4px 12px;margin:8px}
+.inote{font-size:11px;color:#818cf8;text-align:center}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.nbtns{display:flex;justify-content:space-between;align-items:center;margin-top:6px;padding-bottom:20px}
+.nb{padding:10px 26px;border-radius:9px;border:none;font-size:14px;font-weight:700;cursor:pointer;transition:.15s}
+.nb.prev{background:#eff6ff;color:var(--blue)}
+.nb.prev:disabled{background:#f3f4f6;color:#d1d5db;cursor:default}
 .nb.next{background:var(--blue);color:#fff}
-.nb.next:hover{background:var(--blue-dark)}
 .nb.gen{background:var(--green);color:#fff}
-#report-view{display:none}
-.rw{background:#fff;border-radius:12px;box-shadow:0 4px 24px rgba(0,0,0,.12);overflow:hidden;max-width:1050px;margin:0 auto}
-.rcov{background:linear-gradient(135deg,var(--blue-dark) 0%,var(--blue) 55%,var(--teal) 100%);color:#fff;padding:46px 52px 38px;display:grid;grid-template-columns:1fr 200px;align-items:center;gap:28px;min-height:220px}
-.rbadge{background:rgba(255,255,255,.2);border-radius:5px;padding:3px 12px;font-size:10.5px;letter-spacing:1.5px;text-transform:uppercase;display:inline-block;margin-bottom:12px}
-.rcomp{font-size:30px;font-weight:800;line-height:1.2;margin-bottom:6px}
-.rtitle{font-size:17px;opacity:.9;margin-bottom:10px}
-.rmeta{font-size:12.5px;opacity:.75;line-height:1.9}
-.rlogo-box{background:rgba(255,255,255,.15);border-radius:10px;padding:10px;display:flex;flex-direction:column;align-items:center;gap:8px}
-.rlogo-img{width:160px;height:80px;display:flex;align-items:center;justify-content:center;overflow:hidden;border-radius:6px;background:rgba(255,255,255,.1)}
-.rlogo-img img{max-width:150px;max-height:76px;object-fit:contain}
-.rconf{background:rgba(255,255,255,.2);border-radius:6px;padding:6px 12px;text-align:center;font-size:11px;font-weight:700;width:100%;color:#fff}
-.rsh{position:relative;overflow:hidden;min-height:72px;display:flex;align-items:center;padding:0 52px}
-.rsh-bg{position:absolute;inset:0;background-size:cover;background-position:center;filter:brightness(.35) saturate(.8)}
-.rsh-grad{position:absolute;inset:0;background:linear-gradient(90deg,rgba(21,79,150,.85) 0%,rgba(29,111,196,.6) 60%,rgba(0,180,160,.4) 100%)}
-.rsh-inner{position:relative;z-index:1;display:flex;align-items:center;gap:14px}
-.rsh-num{font-size:32px;font-weight:800;color:rgba(255,255,255,.3);line-height:1}
-.rsh-title{font-size:16px;font-weight:700;color:#fff}
+.cbox{background:#fffae8;border:1.5px solid #fde047;border-radius:10px;padding:14px 16px;margin-top:6px}
+.ctit2{font-weight:700;color:#854d0e;margin-bottom:6px;font-size:13px}
+.cpar{font-size:11.5px;color:#92400e;margin-bottom:12px;line-height:1.6}
+.rbox{background:#f0fdf4;border:1.5px solid #86efac;border-radius:10px;padding:12px 14px;margin-top:12px}
+.rtit{font-weight:700;color:#15803d;margin-bottom:7px;font-size:13px}
+table.ct{width:100%;border-collapse:collapse;font-size:12.5px}
+table.ct th{text-align:left;padding:4px 8px;color:#15803d;font-size:12px;border-bottom:1.5px solid #86efac;font-weight:700}
+table.ct th.r,table.ct td.r{text-align:right}
+table.ct td{padding:4px 8px;border-bottom:1px solid #dcfce7}
+table.ct tr.tot td{font-weight:700;color:#15803d;border-top:2px solid #86efac;border-bottom:none}
+#rv{display:none}
+.rw{background:#fff;border-radius:12px;box-shadow:0 4px 24px rgba(0,0,0,.1);overflow:hidden;max-width:1050px;margin:0 auto}
+.rcov{background:linear-gradient(135deg,#0f172a,#1d4ed8 55%,#00b4a0);color:#fff;padding:46px 52px 38px;display:grid;grid-template-columns:1fr 190px;gap:28px;align-items:center}
+.rbadge{background:rgba(255,255,255,.15);border-radius:5px;padding:3px 12px;font-size:10px;letter-spacing:2px;text-transform:uppercase;display:inline-block;margin-bottom:12px}
+.rcomp{font-size:30px;font-weight:800;margin-bottom:6px;line-height:1.2}
+.rtit2{font-size:17px;opacity:.85;margin-bottom:10px}
+.rmeta{font-size:12.5px;opacity:.7;line-height:1.9}
+.rlogo{background:rgba(255,255,255,.15);border-radius:10px;padding:10px;display:flex;flex-direction:column;align-items:center;gap:8px}
+.rlogo-b{width:160px;height:80px;display:flex;align-items:center;justify-content:center;overflow:hidden;border-radius:6px;background:rgba(255,255,255,.1)}
+.rlogo-b img{max-width:150px;max-height:76px;object-fit:contain}
+.rconf{background:rgba(255,255,255,.15);border-radius:6px;padding:5px 12px;font-size:11px;font-weight:700;text-align:center;color:#fff;width:100%}
+.rsh{min-height:64px;display:flex;align-items:center;padding:0 52px;background:linear-gradient(90deg,#0f172a,#1d4ed8 60%,#00b4a0);gap:14px}
+.rsh-n{font-size:32px;font-weight:800;color:rgba(255,255,255,.25)}
+.rsh-t{font-size:16px;font-weight:700;color:#fff}
 .rc{padding:28px 52px}
 .rh4{font-size:13.5px;font-weight:700;color:var(--orange);margin:20px 0 7px;border-left:4px solid var(--orange);padding-left:9px}
-.rp{font-size:13px;line-height:1.8;margin-bottom:10px}
-.rp strong{color:var(--blue-dark)}
+.rp{font-size:13px;line-height:1.85;margin-bottom:10px}
+.rp strong{color:#1e3a8a}
 .krow{display:flex;gap:12px;margin:14px 0;flex-wrap:wrap}
-.kpi{flex:1;min-width:110px;background:var(--gray);border-radius:9px;padding:12px 14px;border-left:4px solid var(--blue)}
+.kpi{flex:1;min-width:110px;background:#f8fafc;border-radius:9px;padding:12px 14px;border-left:4px solid var(--blue)}
 .kv{font-size:24px;font-weight:800;color:var(--blue);line-height:1}
 .kl{font-size:11px;color:var(--muted);margin-top:3px;line-height:1.4}
 .kpi.g{border-color:var(--green)}.kpi.g .kv{color:var(--green)}
 .kpi.o{border-color:var(--orange)}.kpi.o .kv{color:var(--orange)}
-.kpi.r{border-color:#c03030}.kpi.r .kv{color:#c03030}
-.etw{background:var(--green-light);border:1.5px solid #5cb85c;border-radius:10px;padding:14px;margin:12px 0}
-.ett{font-weight:700;color:#2d7a2d;margin-bottom:8px;font-size:13px}
+.kpi.r{border-color:#dc2626}.kpi.r .kv{color:#dc2626}
+.etw{background:#f0fdf4;border:1.5px solid #86efac;border-radius:10px;padding:14px;margin:12px 0}
+.ett{font-weight:700;color:#15803d;margin-bottom:8px;font-size:13px}
 table.et{width:100%;border-collapse:collapse;font-size:12.5px}
-table.et th{color:#2d7a2d;padding:5px 10px;border-bottom:1.5px solid #a0d0a0;font-size:12px;text-align:left}
+table.et th{color:#15803d;padding:5px 10px;border-bottom:1.5px solid #86efac;font-size:12px;text-align:left}
 table.et th.r,table.et td.r{text-align:right}
-table.et td{padding:5px 10px;border-bottom:1px solid #d4edd4}
-table.et tr.tot td{font-weight:700;color:#2d7a2d;border-top:2px solid #5cb85c;border-bottom:none}
-.en{font-size:11px;color:#60a060;margin-top:7px}
+table.et td{padding:5px 10px;border-bottom:1px solid #dcfce7}
+table.et tr.tot td{font-weight:700;color:#15803d;border-top:2px solid #86efac;border-bottom:none}
+.en{font-size:11px;color:#4ade80;margin-top:7px}
 table.mt{width:100%;border-collapse:collapse;font-size:13px;margin:10px 0}
 table.mt th{background:var(--blue);color:#fff;padding:7px 12px;text-align:left;font-size:12px}
 table.mt th.r,table.mt td.r{text-align:right}
 table.mt td{padding:7px 12px;border-bottom:1px solid var(--border)}
-.dn{color:#c03030;font-weight:700}.up{color:var(--green);font-weight:700}
-.mlist{background:var(--gray);border-radius:9px;padding:14px 18px;font-size:13px;line-height:1.9;white-space:pre-wrap;border-left:4px solid var(--blue);margin:10px 0}
-.norm-li{font-size:13px;line-height:1.9;padding-left:16px}
-.norm-li li{margin-bottom:2px}
-.rfoot{background:var(--blue-dark);color:rgba(255,255,255,.55);padding:14px 52px;font-size:11px;display:flex;justify-content:space-between}
-.ebar{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:10px;background:#fff;border-radius:11px;padding:12px 18px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
-.ebar-title{font-size:16px;font-weight:700;color:var(--blue)}
-.ebtns{display:flex;gap:9px;flex-wrap:wrap}
-.ebtn{padding:9px 20px;border-radius:7px;border:none;font-size:13px;font-weight:700;cursor:pointer}
-.ebtn.back{background:var(--blue-light);color:var(--blue)}
+.dn{color:#dc2626;font-weight:700}.up{color:var(--green);font-weight:700}
+.ml{background:#f8fafc;border-radius:9px;padding:14px 18px;font-size:13px;line-height:1.9;white-space:pre-wrap;border-left:4px solid var(--blue);margin:10px 0}
+.nli{font-size:13px;line-height:1.9;padding-left:18px}
+.nli li{margin-bottom:2px}
+.rfoot{background:#0f172a;color:rgba(255,255,255,.4);padding:14px 52px;font-size:11px;display:flex;justify-content:space-between}
+.icap{font-size:12.5px;font-weight:700;color:#1e3a8a;border-left:3px solid var(--blue);padding-left:8px;margin:16px 0 5px}
+.ebar{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:10px;background:#fff;border-radius:11px;padding:12px 18px;border:1px solid var(--border)}
+.ebar-t{font-size:16px;font-weight:700;color:var(--blue)}
+.ebtns{display:flex;gap:8px;flex-wrap:wrap}
+.ebtn{padding:9px 20px;border-radius:8px;border:none;font-size:13px;font-weight:700;cursor:pointer}
+.ebtn.back{background:#eff6ff;color:var(--blue)}
 .ebtn.pdf{background:var(--orange);color:#fff}
-.ebtn.html{background:var(--green);color:#fff}
+.ebtn.word{background:#2b579a;color:#fff}
 @media print{
-  nav,.prog-wrap,.nbtns,#form-view,.ebar{display:none!important}
-  #report-view{display:block!important}
+  .sidebar,.topbar,.nbtns,#fv,.ebar{display:none!important}
+  #rv{display:block!important}
   .rw{box-shadow:none;border-radius:0}
-  .rcov,.rsh,.rsh-bg,.rsh-grad{-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  body{background:#fff}
-}
-@media(max-width:680px){
-  .fg,.fg3{grid-template-columns:1fr}
-  .rcov{grid-template-columns:1fr}
-  .rc,.rsh{padding-left:20px;padding-right:20px}
-  .rfoot{padding:12px 20px;flex-direction:column;gap:3px}
+  .rcov,.rsh{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body{background:#fff}.main{margin-left:0}
 }
 </style>
 </head>
 <body>
-
-<nav>
-  <div class="nl">
-    <span class="nl-box">Ottimo</span>
-    <span class="nl-txt">Generatore PSCL Light</span>
+<div class="sidebar">
+  <div class="slogo">
+    <svg width="28" height="28" viewBox="0 0 45 47" fill="none">
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M45 32.97L22.458 32.97C17.493 32.97 13.468 28.938 13.468 23.963C13.468 19.001 17.502 14.957 22.479 14.957C27.479 14.957 31.532 19.02 31.532 24.005L31.532 32.97L45 32.97L44.9996 24.005C44.9997 11.544 34.894 1.463 22.479 1.463C10.087 1.463 0 11.525 0 23.963C0 36.39 10.055 46.463 22.458 46.463L45 46.463L45 32.97Z" fill="#0089FF"/>
+    </svg>
+    <span class="slogo-txt">Ottimo</span>
   </div>
-  <span class="nl-step" id="nav-info">D.I. 179/2021 conforme</span>
-</nav>
-
-<div class="app">
-  <div class="prog-wrap"><div class="prog" id="prog"></div></div>
-  <div id="form-view"></div>
-  <div id="report-view">
+  <div class="ssec">Generatore PSCL</div>
+  <div id="sidebar"></div>
+</div>
+<div class="main">
+  <div class="topbar">
+    <div>
+      <div class="topbar-t" id="tbar-t">Generatore PSCL Light</div>
+      <div style="font-size:12px;color:var(--muted)">D.I. 179/2021 — Linee Guida Mobility Management</div>
+    </div>
+    <div class="topbar-s" id="tbar-s">Passaggio 1 di 9</div>
+  </div>
+  <div class="content" id="fv-wrap">
+    <div id="fv"></div>
+    <div class="nbtns" id="nbtns">
+      <button class="nb prev" id="bp" onclick="prev()" disabled>← Indietro</button>
+      <button class="nb next" id="bn" onclick="next()">Avanti →</button>
+    </div>
+  </div>
+  <div class="content" id="rv" style="max-width:1100px">
     <div class="ebar">
-      <div class="ebar-title">📄 PSCL generato — pronto per export</div>
+      <div class="ebar-t">📄 PSCL generato</div>
       <div class="ebtns">
         <button class="ebtn back" onclick="goTo(STEPS.length-2)">← Modifica</button>
         <button class="ebtn pdf" onclick="window.print()">🖨️ Stampa / PDF</button>
-        <button class="ebtn html" onclick="downloadHTML()">⬇️ Scarica HTML</button>
+        <button class="ebtn word" id="wbtn" onclick="startWord()">📝 Scarica Word</button>
       </div>
     </div>
     <div class="rw" id="rc"></div>
   </div>
-  <div class="nbtns" id="nbtns">
-    <button class="nb prev" id="bp" onclick="prevStep()" disabled>← Indietro</button>
-    <button class="nb next" id="bn" onclick="nextStep()">Avanti →</button>
-  </div>
 </div>
-
 <input type="file" id="fi" accept="image/*" style="display:none"/>
-
 <script>
-const D={
-  nome_azienda:'',nome_mm:'',anno:new Date().getFullYear(),
-  via:'',comune:'',cap:'',
-  totale:'',analizzati:'',risposte:'',
-  orario_in:'8:00',orario_out:'18:00',
-  navetta:false,carpooling:false,tpl_incentivi:false,bike_work:false,
-  smart_working:false,mensa:false,docce:false,
-  posti_auto:'0',posti_bici:'0',
-  stazione:false,metro:false,bus:false,bike_sharing:false,car_sharing:false,piste:false,
-  n_auto:'',n_tpl:'',n_attiva:'',dist_km:'',prop_pct:'41',
-  misure_text:'',proc1:'0',proc2:'0',proc3:'0',monitor_note:'',
-  logo_data:null,
-  img_tpl:null,img_ciclabili:null,img_isocrone:null,
-  img_distrib:null,img_grafici:null,img_propensione:null,img_gantt:null,
+const LOGOSVG = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTk2IiBoZWlnaHQ9IjQ3IiB2aWV3Qm94PSIwIDAgMTk2IDQ3IiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8cGF0aCBmaWxsLXJ1bGU9ImV2ZW5vZGQiIGNsaXAtcnVsZT0iZXZlbm9kZCIgZD0iTTQ1IDMyLjk3MDFMMjIuNDU3OSAzMi45NzAxQzE3LjQ5MjkgMzIuOTcwMSAxMy40NjggMjguOTM3NyAxMy40NjggMjMuOTYzNEMxMy40NjggMTkuMDAwOCAxNy41MDIyIDE0Ljk1NjYgMjIuNDc4OCAxNC45NTY2QzI3LjQ3ODYgMTQuOTU2NiAzMS41MzE2IDE5LjAxOTYgMzEuNTMxNiAyNC4wMDU0TDMxLjUzMTYgMzIuOTcwMUw0NSAzMi45NzAxTDQ0Ljk5OTYgMjQuMDA1NEM0NC45OTk3IDExLjU0NDEgMzQuODkzNSAxLjQ2MzM4IDIyLjQ3ODggMS40NjMzOEMxMC4wODczIDEuNDYzMzggMi4yODc1ZS0wNiAxMS41MjUzIDIuODMxMTllLTA2IDIzLjk2MzRDMy4zNzQzN2UtMDYgMzYuMzg5OCAxMC4wNTQ3IDQ2LjQ2MzQgMjIuNDU3OSA0Ni40NjM0TDQ1IDQ2LjQ2MzRMNDUgMzIuOTcwMVoiIGZpbGw9IiMwMDg5RkYiLz48cGF0aCBkPSJNMTg0LjIyOSA0Ni41OTk3QzE4Mi4wNTggNDYuNTk5NyAxODAuMDc4IDQ2LjE0NSAxNzguMjg5IDQ1LjIzNTdDMTc2LjUgNDQuMjk3IDE3NS4wNzcgNDIuOTQ3NyAxNzQuMDIxIDQxLjE4NzdDMTcyLjk5NCAzOS40Mjc3IDE3Mi40ODEgMzcuMzU5NyAxNzIuNDgxIDM0Ljk4MzdDMTcyLjQ4MSAzMi41NzgzIDE3Mi45OTQgMzAuNDk1NyAxNzQuMDIxIDI4LjczNTdDMTc1LjA3NyAyNi45NzU3IDE3Ni41IDI1LjY0MSAxNzguMjg5IDI0LjczMTdDMTgwLjA3OCAyMy44MjIzIDE4Mi4wNTggMjMuMzY3NyAxODQuMjI5IDIzLjM2NzdDMTg2LjQgMjMuMzY3NyAxODguMzY1IDIzLjgyMjMgMTkwLjEyNSAyNC43MzE3QzE5MS45MTQgMjUuNjQxIDE5My4zMjIgMjYuOTc1NyAxOTQuMzQ5IDI4LjczNTdDMTk1LjQwNSAzMC40OTU3IDE5NS45MzMgMzIuNTc4MyAxOTUuOTMzIDM0Ljk4MzdDMTk1LjkzMyAzNy4zNTk3IDE5NS40MDUgMzkuNDI3NyAxOTQuMzQ5IDQxLjE4NzdDMTkzLjMyMiA0Mi45NDc3IDE5MS45MTQgNDQuMjk3IDE5MC4xMjUgNDUuMjM1N0MxODguMzM2IDQ2LjE0NSAxODYuMzcgNDYuNTk5NyAxODQuMjI5IDQ2LjU5OTdaTTE4NC4yNzMgNDAuMjE5N0MxODUuNjgxIDQwLjIxOTcgMTg2Ljc5NiAzOS43NTAzIDE4Ny42MTcgMzguODExN0MxODguNDM4IDM3Ljg0MzcgMTg4Ljg0OSAzNi41Njc3IDE4OC44NDkgMzQuOTgzN0MxODguODQ5IDMzLjM5OTcgMTg4LjQzOCAzMi4xMzgzIDE4Ny42MTcgMzEuMTk5N0MxODYuNzk2IDMwLjIzMTcgMTg1LjY4MSAyOS43NDc3IDE4NC4yNzMgMjkuNzQ3N0MxODIuODY1IDI5Ljc0NzcgMTgxLjczNiAzMC4yMzE3IDE4MC44ODUgMzEuMTk5N0MxODAuMDM0IDMyLjE2NzcgMTc5LjYwOSAzMy40MjkgMTc5LjYwOSAzNC45ODM3QzE3OS42MDkgMzYuNTM4MyAxODAuMDM0IDM3Ljc5OTcgMTgwLjg4NSAzOC43Njc3QzE4MS43MzYgMzkuNzM1NyAxODIuODY1IDQwLjIxOTcgMTg0LjI3MyA0MC4yMTk3WiIgZmlsbD0id2hpdGUiLz48cGF0aCBkPSJNNzAuMjkyIDQ2LjQ2NzdDNjcuMzg4IDQ2LjQ2NzcgNjQuNzQ4IDQ1LjgyMjQgNjIuMzcyIDQ0LjUzMTdDNjAuMDI1MyA0My4yMTE3IDU4LjE2MjcgNDEuMzQ5IDU2Ljc4NCAzOC45NDM3QzU1LjQzNDcgMzYuNTA5IDU0Ljc2IDMzLjY5MyA1NC43NiAzMC40OTU3QzU0Ljc2IDI3LjMyNzcgNTUuNDM0NyAyNC41NDEgNTYuNzg0IDIyLjEzNTdDNTguMTYyNyAxOS43MzA0IDYwLjAyNTMgMTcuODgyNCA2Mi4zNzIgMTYuNTkxN0M2NC43NDggMTUuMjcxNyA2Ny4zODggMTQuNjExNyA3MC4yOTIgMTQuNjExN0M3My4xOTYgMTQuNjExNyA3NS44MjEzIDE1LjI3MTcgNzguMTY4IDE2LjU5MTdDODAuNTQ0IDE3Ljg4MjQgODIuNDA2NyAxOS43MzA0IDgzLjc1NiAyMi4xMzU3Qzg1LjEzNDcgMjQuNTQxIDg1LjgyNCAyNy4zMjc3IDg1LjgyNCAzMC40OTU3Qzg1LjgyNCAzMy42OTMgODUuMTM0NyAzNi41MDkgODMuNzU2IDM4Ljk0MzdDODIuNDA2NyA0MS4zNDkgODAuNTQ0IDQzLjIxMTcgNzguMTY4IDQ0LjUzMTdDNzUuODIxMyA0NS44MjI0IDczLjE5NiA0Ni40Njc3IDcwLjI5MiA0Ni40Njc3Wk03MC4yOTIgMzkuNzM1N0M3Mi42Mzg3IDM5LjczNTcgNzQuNTE2IDM4LjkyOSA3NS45MjQgMzcuMzE1N0M3Ny4zNjEzIDM1LjcwMjQgNzguMDggMzMuNDI5IDc4LjA4IDMwLjQ5NTdDNzguMDggMjcuNTMzIDc3LjM2MTMgMjUuMjU5NyA3NS45MjQgMjMuNjc1N0M3NC41MTYgMjIuMDkxNyA3Mi42Mzg3IDIxLjI5OTcgNzAuMjkyIDIxLjI5OTdDNjcuOTE2IDIxLjI5OTcgNjYuMDA5MyAyMi4wOTE3IDY0LjU3MiAyMy42NzU3QzYzLjE2NCAyNS4yNTk3IDYyLjQ2IDI3LjUzMyA2Mi40NiAzMC40OTU3QzYyLjQ2IDMzLjQyOSA2My4xNjQgMzUuNzAyNCA2NC41NzIgMzcuMzE1N0M2Ni4wMDkzIDM4LjkyOSA2Ny45MTYgMzkuNzM1NyA3MC4yOTIgMzkuNzM1N1oiIGZpbGw9IndoaXRlIi8+PC9zdmc+';
+
+const D = {
+  nome_azienda:'', nome_mm:'', anno:new Date().getFullYear(),
+  via:'', comune:'', cap:'', logo_data:LOGOSVG,
+  totale:'', analizzati:'', risposte:'', orario_in:'8:00', orario_out:'18:00',
+  navetta:false, carpooling:false, tpl_incentivi:false, bike_work:false,
+  smart_working:false, mensa:false, docce:false, posti_auto:'0', posti_bici:'0',
+  stazione:false, metro:false, bus:false, bike_sharing:false, car_sharing:false, piste:false,
+  n_auto:'', n_tpl:'', n_attiva:'', dist_km:'', prop_pct:'41',
+  misure_text:'', p1_persone:'', p1_distanza:'', p1_tasso_occ:'1.2', p1_giorni:'45',
+  p2_corse:'', p2_distanza:'', p2_tasso_occ:'1.2', p2_giorni:'45',
+  p3_persone:'', p3_dist_auto:'', p3_viaggi_giorno:'', p3_dist_navetta:'', p3_giorni:'',
+  monitor_note:'',
+  img_tpl:null, img_calore:null, img_ragg_tpl:null, img_ragg_auto:null,
+  img_ragg_bici:null, img_ragg_piedi:null, img_piste:null,
+  img_g_sede:null, img_g_mezzo:null, img_g_sharing:null, img_g_tpl:null,
+  img_g_alim:null, img_g_gruppo:null, img_g_eta:null, img_g_genere:null, img_g_giorni:null,
+  img_p_diverso:null, img_p_remoto:null, img_p_opzione:null, img_p_carpooling:null,
+  img_gantt:null,
 };
 
-const STEPS=['Azienda & Sede','Personale','Dotazioni','Trasporto','Mobilità','Misure','Monitoraggio','Genera PSCL'];
-let cur=0,pendImg=null;
-const $=id=>document.getElementById(id);
-const num=k=>Number(D[k])||0;
+const STEPS = ['Azienda','Personale','Dotazioni','Trasporto','Mobilità','Propensione','Misure','Calcoli','Monitoraggio','Genera PSCL'];
+let cur = 0, pendImg = null;
 
-function calcProc(u,dk){
-  const a=Number(u)||0,b=1.2,c=(Number(dk)||0)*2,d=45;
-  return{CO2:(((a/b)*c)*d*161.71922/1000).toFixed(2),NOx:(((a/b)*c)*d*0.304687/1000).toFixed(2),PM10:(((a/b)*c)*d*0.030991/1000).toFixed(2),n:a};
-}
-function calcs(){
-  const p1=calcProc(D.proc1,D.dist_km),p2=calcProc(D.proc2,D.dist_km),p3={CO2:'0.00',NOx:'0.00',PM10:'0.00',n:num('proc3')};
-  return{p1,p2,p3,tot:{CO2:(+p1.CO2+ +p2.CO2).toFixed(2),NOx:(+p1.NOx+ +p2.NOx).toFixed(2),PM10:(+p1.PM10+ +p2.PM10).toFixed(2),n:p1.n+p2.n+p3.n}};
-}
+const $ = id => document.getElementById(id);
+const num = k => Number(D[k]) || 0;
 
-function bindInput(id,key){const el=$(id);if(!el)return;el.value=D[key]??'';el.addEventListener('input',()=>{D[key]=el.value;if(cur===5)updateCalcPrev();if(cur===4)updateModalSum();});}
-
-function bindYN(key){
-  document.querySelectorAll(`[data-yn="${key}"]`).forEach(btn=>{
-    const v=btn.dataset.val==='true';
-    btn.className='yn button'+(D[key]===v?(v?' ay':' an'):'');
-    btn.onclick=()=>{D[key]=v;document.querySelectorAll(`[data-yn="${key}"]`).forEach(b=>{const bv=b.dataset.val==='true';b.className='yn button'+(D[key]===bv?(bv?' ay':' an'):'');});};
-  });
-}
-
-function updateCalcPrev(){
-  const c=calcs();
-  const u=(id,v)=>{const e=$(id);if(e)e.textContent=v;};
-  u('pdist',(num('dist_km')*2)+' km');
-  ['p1','p2','p3','tot'].forEach(p=>{u(`p-${p}-n`,c[p].n);u(`p-${p}-co2`,c[p].CO2);u(`p-${p}-nox`,c[p].NOx);u(`p-${p}-pm`,c[p].PM10);});
-}
-function updateModalSum(){
-  const t=(num('n_auto')+num('n_tpl')+num('n_attiva'))||1;
-  const u=(id,v)=>{const e=$(id);if(e)e.textContent=v;};
-  u('ms-tot',t);u('ms-auto',D.n_auto+' ('+(num('n_auto')/t*100).toFixed(1)+'%)');u('ms-tpl',D.n_tpl+' ('+(num('n_tpl')/t*100).toFixed(1)+'%)');u('ms-att',D.n_attiva+' ('+(num('n_attiva')/t*100).toFixed(1)+'%)');
-}
-
-function setupSlot(sid,dk){
-  const slot=$(sid);if(!slot)return;
-  const body=slot.querySelector('.isb');
-  if(D[dk]){body.classList.add('hi');body.innerHTML=`<img src="${D[dk]}" alt="img"/><button class="ibtn d" style="margin:8px" onclick="clearImg('${dk}','${sid}')">✕ Rimuovi</button>`;}
-  else{body.classList.remove('hi');body.innerHTML=`<div class="ibtns"><button class="ibtn p" onclick="trigUp('${dk}','${sid}')">⬆️ Carica da computer</button><button class="ibtn s" onclick="trigPaste('${dk}','${sid}')">📋 Incolla screenshot</button></div><p class="ihint">Screenshot da Ottimo Expert → carica qui. Appare nel report finale.</p>`;}
-}
-function trigUp(dk,sid){pendImg={dk,sid};$('fi').click();}
-function clearImg(dk,sid){D[dk]=null;setupSlot(sid,dk);}
-function trigPaste(dk,sid){
-  pendImg={dk,sid};
-  navigator.clipboard.read().then(items=>{
-    for(const it of items){const t=it.types.find(x=>x.startsWith('image/'));if(t){it.getType(t).then(blob=>{const r=new FileReader();r.onload=e=>{D[dk]=e.target.result;setupSlot(sid,dk);};r.readAsDataURL(blob);});return;}}
-    alert('Geen afbeelding gevonden. Kopieer eerst de screenshot (Ctrl+C).');
-  }).catch(()=>alert('Klembord-toegang geweigerd. Gebruik "Carica da computer".'));
-}
-$('fi').addEventListener('change',function(){
-  if(!this.files[0]||!pendImg)return;
-  const r=new FileReader();
-  r.onload=e=>{
-    D[pendImg.dk]=e.target.result;
-    if(pendImg.isLogo){const la=$('logo-area');if(la)la.innerHTML=`<img src="${D.logo_data}" style="max-width:160px;max-height:82px;object-fit:contain"/>`;}
-    else setupSlot(pendImg.sid,pendImg.dk);
-    pendImg=null;
-  };
-  r.readAsDataURL(this.files[0]);this.value='';
-});
-
-function islHTML(id,dk,lbl,hint){
-  return`<div class="isl" id="${id}"><div class="ish"><span class="isl-lbl">📷 ${lbl}</span><span class="isl-sub">${hint}</span></div><div class="isb"></div></div>`;
-}
-function ynF(lbl,key){
-  return`<div><label class="fl">${lbl}</label><div class="yn"><button data-yn="${key}" data-val="true" class="yn button${D[key]?' ay':''}">Sì</button><button data-yn="${key}" data-val="false" class="yn button${!D[key]?' an':''}">No</button></div></div>`;
-}
-
-const PHOTOS=[
-  'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=900&q=60',
-  'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=900&q=60',
-  'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=900&q=60',
-  'https://images.unsplash.com/photo-1496450681664-3df85efbd29f?w=900&q=60',
-  'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=900&q=60',
-];
-function secH(n,title,pi){
-  return`<div class="rsh"><div class="rsh-bg" style="background-image:url('${PHOTOS[pi]||PHOTOS[0]}')"></div><div class="rsh-grad"></div><div class="rsh-inner"><div class="rsh-num">${n}</div><div class="rsh-title">${title}</div></div></div>`;
-}
-
-function s0(){return`<div class="card"><div class="ctitle">🏢 Azienda & Sede</div><div class="csub">Dati identificativi dell'organizzazione</div>
-<div class="fg">
-  <div class="cf"><label class="fl">Logo aziendale</label><div class="fh">Apparirà sul frontespizio del report</div>
-    <div id="logo-area" onclick="pendImg={dk:'logo_data',sid:'logo-area',isLogo:true};$('fi').click()" style="width:170px;height:88px;border:2px dashed var(--border);border-radius:9px;background:var(--gray);display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden">
-      ${D.logo_data?`<img src="${D.logo_data}" style="max-width:160px;max-height:82px;object-fit:contain"/>`:`<div style="text-align:center;color:var(--muted);font-size:12px;padding:8px">📷 Carica logo</div>`}
-    </div>
-  </div>
-  <div><label class="fl">Nome azienda</label><input id="f-company" value="${D.nome_azienda}"/></div>
-  <div><label class="fl">Mobility Manager</label><input id="f-mm" value="${D.nome_mm}"/></div>
-  <div><label class="fl">Anno del piano</label><input id="f-anno" type="number" value="${D.anno}"/></div>
-  <div></div>
-  <div><label class="fl">Via e numero civico</label><input id="f-via" value="${D.via}"/></div>
-  <div style="display:grid;grid-template-columns:2fr 1fr;gap:10px">
-    <div><label class="fl">Comune</label><input id="f-comune" value="${D.comune}"/></div>
-    <div><label class="fl">CAP</label><input id="f-cap" value="${D.cap}"/></div>
-  </div>
-</div></div>`;}
-
-function s1(){return`<div class="card"><div class="ctitle">👥 Personale & Orari</div><div class="csub">Dimensione e partecipazione all'indagine</div>
-<div class="fg">
-  <div><label class="fl">Totale personale</label><input id="f-totale" type="number" value="${D.totale}"/></div>
-  <div><label class="fl">Personale nell'indagine</label><input id="f-analiz" type="number" value="${D.analizzati}"/></div>
-  <div><label class="fl">Risposte ricevute</label><input id="f-risp" type="number" value="${D.risposte}"/></div>
-  <div></div>
-  <div><label class="fl">Orario ingresso</label><input id="f-orin" value="${D.orario_in}"/></div>
-  <div><label class="fl">Orario uscita</label><input id="f-orout" value="${D.orario_out}"/></div>
-</div></div>`;}
-
-function s2(){return`<div class="card"><div class="ctitle">🚗 Dotazioni & Servizi</div><div class="csub">Servizi e infrastrutture di mobilità già attivi</div>
-<div class="fg">
-  ${ynF('Servizio navetta privata','navetta')}
-  ${ynF('Piattaforma carpooling','carpooling')}
-  ${ynF('Incentivi abbonamenti TPL','tpl_incentivi')}
-  ${ynF('Incentivi Bike to Work','bike_work')}
-  ${ynF('Politica smart working','smart_working')}
-  ${ynF('Mensa aziendale','mensa')}
-  ${ynF('Spogliatoi con docce','docce')}
-  <div><label class="fl">Posti auto</label><input id="f-pauto" type="number" value="${D.posti_auto}"/></div>
-  <div><label class="fl">Posti bici</label><input id="f-pbici" type="number" value="${D.posti_bici}"/></div>
-</div></div>`;}
-
-function s3(){return`<div class="card"><div class="ctitle">🚌 Offerta di Trasporto (entro 500m)</div><div class="csub">Servizi nelle vicinanze della sede</div>
-<div class="fg">
-  ${ynF('Stazione ferroviaria','stazione')}
-  ${ynF('Metropolitana','metro')}
-  ${ynF('Fermata bus/tram','bus')}
-  ${ynF('Bike sharing','bike_sharing')}
-  ${ynF('Car sharing','car_sharing')}
-  ${ynF('Piste ciclabili','piste')}
-</div>
-<div style="margin-top:20px">
-  <div style="font-weight:700;color:var(--blue);font-size:14px;margin-bottom:6px">🗺️ Mappe da Ottimo Expert</div>
-  <div style="color:var(--muted);font-size:12.5px;margin-bottom:10px">Fai uno screenshot in Ottimo Expert e caricalo qui. Apparirà nel report finale.</div>
-  ${islHTML('sl-tpl','img_tpl','Mappa TPL + distribuzione utenti','Ottimo Expert → Analisi offerta trasporto')}
-  ${islHTML('sl-cicl','img_ciclabili','Mappa percorsi ciclabili e ciclopedonali','Ottimo Expert → Rete ciclabile')}
-  ${islHTML('sl-iso','img_isocrone','Mappe isocrone raggiungibilità','Ottimo Expert → Raggiungibilità sede')}
-</div></div>`;}
-
-function s4(){
-  const t=(num('n_auto')+num('n_tpl')+num('n_attiva'))||1;
-  return`<div class="card"><div class="ctitle">🗺️ Mobilità Attuale</div><div class="csub">Risultati del questionario e propensione al cambiamento</div>
-<div class="fg">
-  <div><label class="fl">Distanza media spostamento — solo andata (km)</label><div class="fh">Base per tutti i calcoli emissioni</div><input id="f-dist" type="number" value="${D.dist_km}"/></div>
-  <div></div>
-  <div><label class="fl">🚗 Persone in auto / moto</label><input id="f-nauto" type="number" value="${D.n_auto}"/></div>
-  <div><label class="fl">🚌 Persone con trasporto pubblico</label><input id="f-ntpl" type="number" value="${D.n_tpl}"/></div>
-  <div><label class="fl">🚲 Persone con mobilità attiva</label><input id="f-natt" type="number" value="${D.n_attiva}"/></div>
-  <div style="display:flex;align-items:flex-end">
-    <div style="background:var(--blue-light);border-radius:9px;padding:12px 16px;width:100%">
-      <div style="font-size:11.5px;color:var(--muted)">Totale analizzato</div>
-      <div id="ms-tot" style="font-size:26px;font-weight:800;color:var(--blue)">${t}</div>
-      <div style="font-size:12px;color:var(--muted);margin-top:3px">Auto: <span id="ms-auto">${D.n_auto}</span> · TPL: <span id="ms-tpl">${D.n_tpl}</span> · Att.: <span id="ms-att">${D.n_attiva}</span></div>
-    </div>
-  </div>
-  <div class="cf">
-    <label class="fl">% dipendenti disponibili a cambiare modalità</label>
-    <div class="fh">Risposta alla domanda "Puoi viaggiare diversamente?"</div>
-    <div style="display:flex;align-items:center;gap:14px;margin-top:6px">
-      <input type="range" id="f-prop" min="0" max="100" value="${D.prop_pct}" style="flex:1" oninput="D.prop_pct=this.value;$('prop-lbl').textContent=this.value+'%'"/>
-      <strong id="prop-lbl" style="color:var(--blue);font-size:20px;min-width:48px">${D.prop_pct}%</strong>
-    </div>
-  </div>
-</div>
-<div style="margin-top:20px">
-  <div style="font-weight:700;color:var(--blue);font-size:14px;margin-bottom:6px">📊 Grafici da Ottimo Expert</div>
-  <div style="color:var(--muted);font-size:12.5px;margin-bottom:10px">Esporta i grafici del questionario e caricali qui.</div>
-  ${islHTML('sl-dist','img_distrib','Mappa distribuzione mobilità + flussi','Ottimo Expert → Distribuzione e flussi')}
-  ${islHTML('sl-graf','img_grafici','Grafici questionario: modale, demografici, orari','Ottimo Expert → Risultati questionario')}
-  ${islHTML('sl-prop','img_propensione','Grafici propensione al cambiamento','Ottimo Expert → Propensione')}
-</div></div>`;}
-
-function s5(){
-  const c=calcs();
-  return`<div class="card"><div class="ctitle">⚙️ Misure & Calcoli Emissioni</div><div class="csub">D.I. 179/2021 — Allegato 4</div>
-<div style="margin-bottom:18px"><label class="fl">Misure da implementare nell'anno ${Number(D.anno)+1}</label><textarea id="f-misure">${D.misure_text}</textarea></div>
-<div class="cbox">
-  <div class="ctit">📐 Parametri calcolo (Allegato 4 Linee Guida)</div>
-  <div class="cpar">Distanza A/R: <strong id="pdist">${num('dist_km')*2} km</strong> · Occupazione auto: <strong>1,2</strong> · Giorni/anno: <strong>45</strong> · CO₂: 161,72 g/km · NOx: 0,305 g/km · PM10: 0,031 g/km</div>
-  <div class="fg3">
-    <div><label class="fl">Proc. 1 — persone → SW / TPL / Mobilità attiva</label><div class="fh">Sottratti all'auto tramite remote, TPL o bici</div><input id="f-proc1" type="number" value="${D.proc1}" oninput="D.proc1=this.value;updateCalcPrev()"/></div>
-    <div><label class="fl">Proc. 2 — persone → Carpooling / Car sharing</label><div class="fh">Utenti che condivideranno il viaggio</div><input id="f-proc2" type="number" value="${D.proc2}" oninput="D.proc2=this.value;updateCalcPrev()"/></div>
-    <div><label class="fl">Proc. 3 — persone → Navetta aziendale</label><div class="fh">0 se non applicabile</div><input id="f-proc3" type="number" value="${D.proc3}" oninput="D.proc3=this.value;updateCalcPrev()"/></div>
-  </div>
-  <div class="rbox"><div class="rtit">✅ Risparmio emissioni — aggiornato in tempo reale</div>
-  <table class="rt">
-    <thead><tr><th>Procedura</th><th class="r">Utenti</th><th class="r">CO₂ kg/a</th><th class="r">NOx kg/a</th><th class="r">PM10 kg/a</th></tr></thead>
-    <tbody>
-      <tr><td>1 — SW / TPL / Attiva</td><td class="r" id="p-p1-n">${c.p1.n}</td><td class="r" id="p-p1-co2">${c.p1.CO2}</td><td class="r" id="p-p1-nox">${c.p1.NOx}</td><td class="r" id="p-p1-pm">${c.p1.PM10}</td></tr>
-      <tr><td>2 — Carpooling / Car sharing</td><td class="r" id="p-p2-n">${c.p2.n}</td><td class="r" id="p-p2-co2">${c.p2.CO2}</td><td class="r" id="p-p2-nox">${c.p2.NOx}</td><td class="r" id="p-p2-pm">${c.p2.PM10}</td></tr>
-      <tr><td>3 — Navetta aziendale</td><td class="r" id="p-p3-n">${c.p3.n}</td><td class="r" id="p-p3-co2">${c.p3.CO2}</td><td class="r" id="p-p3-nox">${c.p3.NOx}</td><td class="r" id="p-p3-pm">${c.p3.PM10}</td></tr>
-      <tr class="tot"><td>TOTALE</td><td class="r" id="p-tot-n">${c.tot.n}</td><td class="r" id="p-tot-co2">${c.tot.CO2}</td><td class="r" id="p-tot-nox">${c.tot.NOx}</td><td class="r" id="p-tot-pm">${c.tot.PM10}</td></tr>
-    </tbody>
-  </table></div>
-</div></div>`;}
-
-function s6(){return`<div class="card"><div class="ctitle">📅 Monitoraggio & Implementazione</div><div class="csub">Programma temporale e note di monitoraggio</div>
-<div style="margin-bottom:18px"><label class="fl">Note sul programma di monitoraggio (opzionale)</label><textarea id="f-monitor">${D.monitor_note}</textarea></div>
-${islHTML('sl-gantt','img_gantt','Gantt trimestrale programma di implementazione','Ottimo Expert o compilare manualmente')}
-<div style="background:var(--green-light);border-radius:10px;padding:14px;margin-top:14px;border-left:4px solid var(--green)">
-  <div style="font-weight:700;color:#1a6a2a;margin-bottom:4px">✅ Tutto pronto!</div>
-  <div style="font-size:13px;color:#2a7a3a;line-height:1.7">Clicca <strong>Genera PSCL</strong> per visualizzare il report. Poi stampa o scarica HTML.</div>
-</div></div>`;}
-
-function renderReport(){
-  const c=calcs();
-  const tot=(num('n_auto')+num('n_tpl')+num('n_attiva'))||1;
-  const pA=(num('n_auto')/tot*100).toFixed(1),pT=(num('n_tpl')/tot*100).toFixed(1),pM=(num('n_attiva')/tot*100).toFixed(1);
-  const aN=Number(D.anno)+1;
-  const nA2=Math.max(0,num('n_auto')-c.tot.n),nT2=num('n_tpl')+num('proc1');
-  const pA2=(nA2/tot*100).toFixed(1),pT2=(nT2/tot*100).toFixed(1);
-  const svcs=[D.stazione&&'stazione ferroviaria',D.metro&&'metropolitana',D.bus&&'fermata bus/tram',D.bike_sharing&&'bike sharing',D.car_sharing&&'car sharing',D.piste&&'piste ciclabili'].filter(Boolean);
-  function ip(dk,lbl){if(D[dk])return`<div style="margin:14px 0;border-radius:10px;overflow:hidden;border:1px solid var(--border)"><img src="${D[dk]}" style="width:100%;display:block"/></div>`;return`<div style="border:2px dashed #b0c4de;border-radius:10px;background:#f4f8ff;padding:20px;text-align:center;color:#7090b0;margin:14px 0;font-size:13px">📊 <em>[${lbl}]</em><br><span style="font-size:11px;color:#aaa">Immagine non caricata</span></div>`;}
-
-  $('rc').innerHTML=`
-  <div class="rcov">
-    <div>
-      <div class="rbadge">Piano degli Spostamenti Casa-Lavoro · PSCL Light</div>
-      <div class="rcomp">${D.nome_azienda||'[Azienda]'}</div>
-      <div class="rtitle">Anno ${D.anno}</div>
-      <div class="rmeta">📍 ${D.via}, ${D.cap} ${D.comune}<br>👤 Mobility Manager: <strong>${D.nome_mm||'—'}</strong><br>📅 ${new Date().toLocaleDateString('it-IT')}</div>
-    </div>
-    <div class="rlogo-box">
-      <div class="rlogo-img">${D.logo_data?`<img src="${D.logo_data}" alt="logo"/>`:`<div style="color:rgba(255,255,255,.6);font-size:20px;font-weight:800">Ottimo</div>`}</div>
-      <div class="rconf">D.I. 179/2021 conforme</div>
-    </div>
-  </div>
-  ${secH(1,'Introduzione',0)}<div class="rc">
-    <p class="rp">Il presente Piano degli Spostamenti Casa-Lavoro è redatto in conformità al <strong>Decreto Interministeriale n. 179 del 12 maggio 2021</strong>, per l'anno <strong>${D.anno}</strong>. Elaborato dal Mobility Manager <strong>${D.nome_mm||'—'}</strong> per la sede di <strong>${D.nome_azienda||'—'}</strong>, in <strong>${D.via}, ${D.cap} ${D.comune}</strong>.</p>
-    <p class="rp">L'obiettivo è promuovere modalità di spostamento sostenibili, riducendo traffico veicolare e emissioni inquinanti in linea con la normativa vigente.</p>
-  </div>
-  ${secH(2,'Parte Informativa e di Analisi',1)}<div class="rc">
-    <div class="rh4">2.1 Analisi delle Condizioni Strutturali</div>
-    <div class="krow">
-      <div class="kpi"><div class="kv">${D.totale||'—'}</div><div class="kl">Dipendenti totali</div></div>
-      <div class="kpi"><div class="kv">${D.risposte||'—'}</div><div class="kl">Risposte questionario</div></div>
-      <div class="kpi"><div class="kv">${D.totale&&D.risposte?((D.risposte/D.totale)*100).toFixed(0):'—'}%</div><div class="kl">Tasso di risposta</div></div>
-      <div class="kpi o"><div class="kv">${D.orario_in}–${D.orario_out}</div><div class="kl">Orario Lun–Ven</div></div>
-    </div>
-    <p class="rp">La sede è in <strong>${D.via}, ${D.cap} ${D.comune}</strong>. Su <strong>${D.totale}</strong> dipendenti, <strong>${D.analizzati}</strong> coinvolti nell'indagine, <strong>${D.risposte}</strong> risposte ricevute. <strong>Dotazioni attive:</strong> ${[D.navetta&&'navetta',D.carpooling&&'carpooling',D.tpl_incentivi&&'incentivi TPL',D.bike_work&&'Bike to Work',D.smart_working&&'smart working',D.mensa&&'mensa',D.docce&&'docce'].filter(Boolean).join(', ')||'nessuna'}. Posti auto: <strong>${D.posti_auto}</strong> · Posti bici: <strong>${D.posti_bici}</strong>.</p>
-    <div class="rh4">2.2 Analisi dell'Offerta di Trasporto</div>
-    <p class="rp">Entro 500m dalla sede: <strong>${svcs.join(', ')||'nessun servizio rilevato'}</strong>.</p>
-    ${ip('img_tpl','Mappa TPL e distribuzione utenti per modalità')}
-    ${ip('img_ciclabili','Mappa percorsi ciclabili e ciclopedonali')}
-    ${ip('img_isocrone','Mappe isocrone di raggiungibilità')}
-    <div class="rh4">2.3 Analisi degli Spostamenti Casa-Lavoro</div>
-    <div class="krow">
-      <div class="kpi r"><div class="kv">${pA}%</div><div class="kl">🚗 Auto/moto<br>${D.n_auto} persone</div></div>
-      <div class="kpi"><div class="kv">${pT}%</div><div class="kl">🚌 Trasporto pubblico<br>${D.n_tpl} persone</div></div>
-      <div class="kpi g"><div class="kv">${pM}%</div><div class="kl">🚲 Mobilità attiva<br>${D.n_attiva} persone</div></div>
-      <div class="kpi o"><div class="kv">${D.prop_pct}%</div><div class="kl">Disponibili a cambiare modalità</div></div>
-    </div>
-    <p class="rp">Auto prevalente: <strong>${pA}%</strong>, TPL: <strong>${pT}%</strong>, mobilità attiva: <strong>${pM}%</strong>. Distanza media sola andata: <strong>${D.dist_km} km</strong>. Il <strong>${D.prop_pct}%</strong> è disponibile a cambiare modalità.</p>
-    ${ip('img_distrib','Mappa distribuzione mobilità e flussi')}
-    ${ip('img_grafici','Grafici questionario: modale, demografici, orari')}
-    ${ip('img_propensione','Grafici propensione al cambiamento')}
-  </div>
-  ${secH(3,'Parte Progettuale',2)}<div class="rc">
-    <div class="rh4">3.1 Misure da Implementare nell'Anno ${aN}</div>
-    <p class="rp">Sulla base dell'analisi e della propensione al cambiamento (<strong>${D.prop_pct}%</strong>), sono previste le seguenti misure per l'anno ${aN}:</p>
-    <div class="mlist">${D.misure_text||'[Misure non definite]'}</div>
-    <div class="rh4">3.2 Stima Riduzione Emissioni Inquinanti (Anno ${aN})</div>
-    <p class="rp">Calcolo secondo <strong>Allegato 4, D.I. 179/2021</strong>. Distanza A/R <strong>${num('dist_km')*2} km</strong>, tasso occupazione <strong>1,2</strong>, giorni/anno <strong>45</strong>, fattori ISPRA 2022. Totale persone coinvolte: <strong>${c.tot.n}</strong>.</p>
-    <div class="etw"><div class="ett">Cruscotto Impatto Ambientale PSCL — Risparmio annuo stimato</div>
-    <table class="et"><thead><tr><th>Procedura</th><th class="r">Utenti</th><th class="r">CO₂ kg/anno</th><th class="r">NOx kg/anno</th><th class="r">PM10 kg/anno</th></tr></thead>
-    <tbody>
-      <tr><td>Procedura 1 — Smart working / TPL / Mobilità attiva</td><td class="r">${c.p1.n}</td><td class="r">${c.p1.CO2}</td><td class="r">${c.p1.NOx}</td><td class="r">${c.p1.PM10}</td></tr>
-      <tr><td>Procedura 2 — Carpooling / Car sharing</td><td class="r">${c.p2.n}</td><td class="r">${c.p2.CO2}</td><td class="r">${c.p2.NOx}</td><td class="r">${c.p2.PM10}</td></tr>
-      <tr><td>Procedura 3 — Navetta aziendale</td><td class="r">${c.p3.n}</td><td class="r">${c.p3.CO2}</td><td class="r">${c.p3.NOx}</td><td class="r">${c.p3.PM10}</td></tr>
-      <tr class="tot"><td>TOTALE</td><td class="r">${c.tot.n}</td><td class="r">${c.tot.CO2}</td><td class="r">${c.tot.NOx}</td><td class="r">${c.tot.PM10}</td></tr>
-    </tbody></table>
-    <div class="en">* Calcolato conformemente all'Allegato 4 delle Linee Guida (D.I. 179/2021). Formula: x = (((a/b)×c)×d×e)/1000</div></div>
-    <div class="rh4">3.3 Variazione Modale Attesa (Anno ${aN})</div>
-    <table class="mt"><thead><tr><th>Modalità</th><th class="r">Attuale ${D.anno}</th><th class="r">Obiettivo ${aN}</th><th class="r">Δ</th></tr></thead>
-    <tbody>
-      <tr><td>🚗 Auto / moto</td><td class="r">${D.n_auto} (${pA}%)</td><td class="r">${nA2} (${pA2}%)</td><td class="r"><span class="dn">−${c.tot.n}</span></td></tr>
-      <tr><td>🚌 Trasporto pubblico</td><td class="r">${D.n_tpl} (${pT}%)</td><td class="r">${nT2} (${pT2}%)</td><td class="r"><span class="up">+${num('proc1')}</span></td></tr>
-      <tr><td>🚲 Mobilità attiva</td><td class="r">${D.n_attiva} (${pM}%)</td><td class="r">${D.n_attiva} (${pM}%)</td><td class="r" style="color:var(--muted)">—</td></tr>
-    </tbody></table>
-    <div class="rh4">3.4 Programma di Implementazione</div>
-    ${ip('img_gantt','Gantt trimestrale programma di implementazione')}
-  </div>
-  ${secH(4,'Programma di Monitoraggio',3)}<div class="rc">
-    <p class="rp">${D.monitor_note||`Il monitoraggio verrà effettuato tramite questionario aggiornato nell'anno ${aN}, confrontando i risultati con i dati del presente piano per valutare progressi e aggiornare le misure.`}</p>
-  </div>
-  ${secH(5,'Riferimenti Normativi',4)}<div class="rc">
-    <ul class="norm-li">
-      <li>Decreto Interministeriale n. 179 del 12 maggio 2021</li>
-      <li>Decreto Interdirettoriale n. 209 del 4 agosto 2021</li>
-      <li>Linee Guida PSCL (art. 3 comma 5, G.U. n. 124 del 26 maggio 2021)</li>
-      <li>Indirizzi operativi per i Mobility Manager d'Area (24 luglio 2024)</li>
-    </ul>
-  </div>
-  <div class="rfoot"><span>${D.nome_azienda} · PSCL ${D.anno} · MM: ${D.nome_mm||'—'}</span><span>Ottimo PSCL Generator · ${new Date().toLocaleDateString('it-IT')}</span></div>`;
-}
-
-function downloadHTML(){
-  renderReport();
-  const html=`<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"/><title>PSCL ${D.nome_azienda} ${D.anno}</title>
-  <style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Segoe UI',Arial,sans-serif;background:#fff;color:#1a1a2e}
-  .rcov{background:linear-gradient(135deg,#154f96,#1d6fc4 55%,#00b4a0);color:#fff;padding:46px 52px 38px;display:grid;grid-template-columns:1fr 200px;gap:28px;min-height:220px;align-items:center}
-  .rbadge{background:rgba(255,255,255,.2);border-radius:5px;padding:3px 12px;font-size:10.5px;letter-spacing:1.5px;text-transform:uppercase;display:inline-block;margin-bottom:12px}
-  .rcomp{font-size:30px;font-weight:800;margin-bottom:6px}.rtitle{font-size:17px;opacity:.9;margin-bottom:10px}.rmeta{font-size:12.5px;opacity:.75;line-height:1.9}
-  .rlogo-box{background:rgba(255,255,255,.15);border-radius:10px;padding:10px;display:flex;flex-direction:column;align-items:center;gap:8px}
-  .rlogo-img{width:160px;height:80px;display:flex;align-items:center;justify-content:center;overflow:hidden;border-radius:6px}
-  .rlogo-img img{max-width:150px;max-height:76px;object-fit:contain}.rconf{background:rgba(255,255,255,.2);border-radius:6px;padding:6px 12px;text-align:center;font-size:11px;font-weight:700;width:100%;color:#fff}
-  .rsh{background:linear-gradient(90deg,#154f96,#1d6fc4 60%,#00b4a0);padding:16px 52px;display:flex;align-items:center;gap:14px;min-height:60px}
-  .rsh-num{font-size:32px;font-weight:800;color:rgba(255,255,255,.3)}.rsh-title{font-size:16px;font-weight:700;color:#fff}
-  .rc{padding:28px 52px}.rh4{font-size:13.5px;font-weight:700;color:#f07010;margin:20px 0 7px;border-left:4px solid #f07010;padding-left:9px}
-  .rp{font-size:13px;line-height:1.8;margin-bottom:10px}.rp strong{color:#154f96}
-  .krow{display:flex;gap:12px;margin:14px 0;flex-wrap:wrap}
-  .kpi{flex:1;min-width:110px;background:#f5f7fa;border-radius:9px;padding:12px 14px;border-left:4px solid #1d6fc4}
-  .kv{font-size:24px;font-weight:800;color:#1d6fc4;line-height:1}.kl{font-size:11px;color:#6b7a99;margin-top:3px;line-height:1.4}
-  .kpi.g{border-color:#28a745}.kpi.g .kv{color:#28a745}.kpi.o{border-color:#f07010}.kpi.o .kv{color:#f07010}.kpi.r{border-color:#c03030}.kpi.r .kv{color:#c03030}
-  .etw{background:#eaf7ea;border:1.5px solid #5cb85c;border-radius:10px;padding:14px;margin:12px 0}
-  .ett{font-weight:700;color:#2d7a2d;margin-bottom:8px;font-size:13px}
-  table{width:100%;border-collapse:collapse;font-size:12.5px}th{text-align:left;padding:5px 10px;border-bottom:1.5px solid #a0d0a0;font-size:12px;color:#2d7a2d}
-  th.r,td.r{text-align:right}td{padding:5px 10px;border-bottom:1px solid #d4edd4}tr.tot td{font-weight:700;color:#2d7a2d;border-top:2px solid #5cb85c;border-bottom:none}
-  .en{font-size:11px;color:#60a060;margin-top:7px}
-  table.mt th{background:#1d6fc4;color:#fff;border-bottom:none}table.mt td{border-bottom:1px solid #dde4ef}
-  .dn{color:#c03030;font-weight:700}.up{color:#28a745;font-weight:700}
-  .mlist{background:#f5f7fa;border-radius:9px;padding:14px 18px;font-size:13px;line-height:1.9;white-space:pre-wrap;border-left:4px solid #1d6fc4;margin:10px 0}
-  .norm-li{font-size:13px;line-height:1.9;padding-left:16px}.norm-li li{margin-bottom:2px}
-  .rfoot{background:#154f96;color:rgba(255,255,255,.55);padding:14px 52px;font-size:11px;display:flex;justify-content:space-between}
-  img{max-width:100%;border-radius:8px;margin:12px 0;display:block}
-  @media print{.rcov,.rsh{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
-  </style></head><body>${$('rc').innerHTML}</body></html>`;
-  const blob=new Blob([html],{type:'text/html'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
-  a.download=`PSCL_${(D.nome_azienda||'report').replace(/\s+/g,'_')}_${D.anno}.html`;a.click();
-}
-
-const SR=[s0,s1,s2,s3,s4,s5,s6];
-function goTo(n){
-  cur=n;
-  const fv=$('form-view'),rv=$('report-view'),nb=$('nbtns');
-  if(n===STEPS.length-1){fv.style.display='none';rv.style.display='block';nb.style.display='none';renderReport();}
-  else{
-    fv.style.display='block';rv.style.display='none';nb.style.display='flex';
-    $('form-view').innerHTML=SR[n]();
-    [['f-company','nome_azienda'],['f-mm','nome_mm'],['f-via','via'],['f-comune','comune'],['f-cap','cap'],
-     ['f-totale','totale'],['f-analiz','analizzati'],['f-risp','risposte'],['f-orin','orario_in'],['f-orout','orario_out'],
-     ['f-pauto','posti_auto'],['f-pbici','posti_bici'],['f-nauto','n_auto'],['f-ntpl','n_tpl'],['f-natt','n_attiva'],
-     ['f-dist','dist_km'],['f-misure','misure_text'],['f-monitor','monitor_note'],
-    ].forEach(([id,k])=>bindInput(id,k));
-    const fa=$('f-anno');if(fa){fa.value=D.anno;fa.addEventListener('input',()=>D.anno=fa.value);}
-    ['navetta','carpooling','tpl_incentivi','bike_work','smart_working','mensa','docce',
-     'stazione','metro','bus','bike_sharing','car_sharing','piste'].forEach(k=>bindYN(k));
-    [['sl-tpl','img_tpl'],['sl-cicl','img_ciclabili'],['sl-iso','img_isocrone'],
-     ['sl-dist','img_distrib'],['sl-graf','img_grafici'],['sl-prop','img_propensione'],['sl-gantt','img_gantt']
-    ].forEach(([s,d])=>setupSlot(s,d));
-    if(n===5)updateCalcPrev();if(n===4)updateModalSum();
-  }
-  $('prog').innerHTML=STEPS.map((l,i)=>`<div class="ps ${i<cur?'done':i===cur?'active':'todo'}" onclick="goTo(${i})"><span class="ps-n">${i+1}</span>${l}</div>`).join('');
-  $('nav-info').textContent=`Passaggio ${cur+1} di ${STEPS.length}`;
-  const bp=$('bp'),bn=$('bn');
-  if(bp&&bn){bp.disabled=cur===0;const last=cur===STEPS.length-2;bn.textContent=last?'🚀 Genera PSCL →':'Avanti →';bn.className='nb '+(last?'gen':'next');}
-  window.scrollTo({top:0,behavior:'smooth'});
-}
-function nextStep(){if(cur<STEPS.length-1)goTo(cur+1);}
-function prevStep(){if(cur>0)goTo(cur-1);}
-goTo(0);
-</script>
-</body>
-</html>
+function calcAll() {
+  const b1=Math.max(0.1,num('p1_tasso_occ')), b2=Math.max(0.1,num('p2_tasso_occ'));
+  const eC=161.71922/1000, eN=0.304687/1000, eP=0.030991/1000;
+  const p1a=num('p1_persone'), p1c=num('p1_distanza')*2
