@@ -297,16 +297,24 @@ function addKpiRow(){
 function removeKpiRow(idx){D.kpi_rows.splice(idx,1);render(cur);}
 
 function calcAll(){
-  var b1=Math.max(0.1,num('p1_tasso_occ')),b2=Math.max(0.1,num('p2_tasso_occ'));
+  var delta=num('delta_occ')||1.2;
   var eC=161.71922/1000,eN=0.304687/1000,eP=0.030991/1000;
-  var p1a=num('n_auto'),p1c=num('dist_km')*2,p1d=num('p1_giorni');
-  var p1={n:p1a,CO2:(((p1a/b1)*p1c)*p1d*eC).toFixed(2),NOx:(((p1a/b1)*p1c)*p1d*eN).toFixed(2),PM10:(((p1a/b1)*p1c)*p1d*eP).toFixed(2)};
-  var p2a=num('p2_corse'),p2c=num('p2_distanza')*2,p2d=num('p2_giorni');
-  var p2={n:p2a,CO2:(((p2a/b2)*p2c)*p2d*eC).toFixed(2),NOx:(((p2a/b2)*p2c)*p2d*eN).toFixed(2),PM10:(((p2a/b2)*p2c)*p2d*eP).toFixed(2)};
-  var p3a=num('p3_persone'),p3c=num('p3_dist_auto')*2,p3f=num('p3_giorni'),p3d=num('p3_viaggi_giorno'),p3e=num('p3_dist_navetta');
-  var p3CO2=Math.max(0,(((p3a/1.2)*p3c)*p3f*eC)-(p3d*p3e*p3f*717.99813/1000));
-  var p3NOx=Math.max(0,(((p3a/1.2)*p3c)*p3f*eN)-(p3d*p3e*p3f*3.269033/1000));
-  var p3PM10=Math.max(0,(((p3a/1.2)*p3c)*p3f*eP)-(p3d*p3e*p3f*0.126615/1000));
+  // Proc 1: use p1_dist_ar if set, else dist_km*2
+  var p1a=num('n_auto');
+  var p1c=num('p1_dist_ar')||num('dist_km')*2;
+  var p1d=num('p1_giorni')||num('giorni_base')||220;
+  var p1={n:p1a,CO2:(((p1a/delta)*p1c)*p1d*eC).toFixed(2),NOx:(((p1a/delta)*p1c)*p1d*eN).toFixed(2),PM10:(((p1a/delta)*p1c)*p1d*eP).toFixed(2)};
+  // Proc 2: distanza A/R already stored as AR value
+  var p2a=num('p2_corse');
+  var p2c=num('p2_distanza')*2;
+  var p2d=num('p2_giorni')||num('giorni_base')||220;
+  var p2={n:p2a,CO2:(((p2a/delta)*p2c)*p2d*eC).toFixed(2),NOx:(((p2a/delta)*p2c)*p2d*eN).toFixed(2),PM10:(((p2a/delta)*p2c)*p2d*eP).toFixed(2)};
+  // Proc 3
+  var p3a=num('p3_persone'),p3c=num('p3_dist_auto')*2,p3f=num('p3_giorni')||220;
+  var p3d=num('p3_viaggi_giorno')||2,p3e=num('p3_dist_navetta');
+  var p3CO2=Math.max(0,(((p3a/delta)*p3c)*p3f*eC)-(p3d*p3e*p3f*717.99813/1000));
+  var p3NOx=Math.max(0,(((p3a/delta)*p3c)*p3f*eN)-(p3d*p3e*p3f*3.269033/1000));
+  var p3PM10=Math.max(0,(((p3a/delta)*p3c)*p3f*eP)-(p3d*p3e*p3f*0.126615/1000));
   var p3={n:p3a,CO2:p3CO2.toFixed(2),NOx:p3NOx.toFixed(2),PM10:p3PM10.toFixed(2)};
   var tot={n:p1.n+p2.n+p3.n,CO2:(+p1.CO2+ +p2.CO2+ +p3.CO2).toFixed(2),NOx:(+p1.NOx+ +p2.NOx+ +p3.NOx).toFixed(2),PM10:(+p1.PM10+ +p2.PM10+ +p3.PM10).toFixed(2)};
   return {p1:p1,p2:p2,p3:p3,tot:tot};
@@ -651,33 +659,159 @@ function s6(){
 }
 function s7(){
   var c=calcAll();
-  var out='<div class="card"><div class="sbadge">Passaggio 9</div><div class="ctit">Calcoli Emissioni Evitate</div><div class="csub">Allegato 4, D.I. 179/2021 — Fattori ISPRA 2022</div>';
-  out+='<div class="cbox" style="margin-bottom:14px"><div class="ctit2">Procedura 1 — Smart working / TPL / Mobilita attiva</div><div class="cpar">Formula: x = (((a/b)xc)xdxe)/1000</div><div class="fg">';
-  out+='<div><label style="display:block;font-weight:600;font-size:13px;margin-bottom:3px">a) N persone che smettono di usare l\'auto</label><input id="f-na" type="number" value="'+D.n_auto+'" oninput="D.n_auto=this.value;updateCalc()"/></div>';
-  out+='<div><label style="display:block;font-weight:600;font-size:13px;margin-bottom:3px">b) Distanza media sola andata (km)</label><div class="fh">Collegato al Passaggio 6</div><input type="number" value="'+D.dist_km+'" style="background:#f0fdf4;border-color:#86efac" oninput="D.dist_km=this.value;updateCalc()"/></div>';
-  out+='<div><label style="display:block;font-weight:600;font-size:13px;margin-bottom:3px">c) Tasso occupazione auto</label><input id="f-p1o" type="number" step="0.1" value="'+D.p1_tasso_occ+'" oninput="D.p1_tasso_occ=this.value;updateCalc()"/></div>';
-  out+='<div><label style="display:block;font-weight:600;font-size:13px;margin-bottom:3px">d) Giorni/anno (default 45)</label><input id="f-p1g" type="number" value="'+D.p1_giorni+'" oninput="D.p1_giorni=this.value;updateCalc()"/></div>';
+  // Shared values with smart defaults
+  var distKm = D.dist_km || '—';
+  var annoLav = 220; // standard Italian working days
+
+  // Helper: shared field note
+  function fieldBlock(label,hint,inputHtml){
+    return '<div style="display:contents">'
+      +'<label style="font-weight:600;font-size:12px;padding-bottom:3px;align-self:end">'+label+'</label>'
+      +'<div style="font-size:10px;color:var(--muted);align-self:start">'+hint+'</div>'
+      +inputHtml
+      +'</div>';
+  }
+  function inp(id,val,oninput,blue){
+    var bg=blue?'background:#f0f9ff;border-color:#bae6fd':'';
+    return '<input id="'+id+'" type="number" value="'+val+'" oninput="'+oninput+'" style="padding:9px 12px;border:1.5px solid var(--border);border-radius:9px;font-size:13px;width:100%;'+bg+'"/>';
+  }
+  function procGrid(cols,fields,resultId1,resultId2,resultId3,c,proc){
+    var gridStyle='display:grid;grid-template-columns:'+cols+';grid-template-rows:auto auto auto;gap:0 14px;align-items:start;margin-bottom:4px';
+    var html='<div style="'+gridStyle+'">';
+    fields.forEach(function(f){ html+=fieldBlock(f.label,f.hint,f.input); });
+    html+='</div>';
+    return html;
+  }
+
+  var out='<div class="card"><div class="sbadge">Passaggio 9</div>';
+  out+='<div class="ctit">Calcoli Emissioni Evitate</div>';
+  out+='<div class="csub">Allegato 4, D.I. 179/2021 — I valori condivisi si aggiornano automaticamente tra le procedure. Puoi sempre sovrascriverli.</div>';
+
+  // ── SHARED VALUES BANNER ──
+  out+='<div style="background:#f0f9ff;border:1.5px solid #bae6fd;border-radius:12px;padding:14px 18px;margin-bottom:20px">';
+  out+='<div style="font-weight:700;font-size:13px;color:#0369a1;margin-bottom:10px">Valori condivisi tra le procedure</div>';
+  out+='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px">';
+  out+='<div><label style="display:block;font-weight:600;font-size:12px;margin-bottom:3px">L — Percorrenza media giornaliera A/R (km)</label>';
+  out+='<div style="font-size:10px;color:var(--muted);margin-bottom:4px">Media da questionario (sola andata x2). Da Passaggio 6.</div>';
+  out+='<input id="s-dist" type="number" value="'+(num('dist_km')*2||'')+'" oninput="D.dist_km=(this.value/2);document.getElementById(\'p1-dist\').value=this.value;document.getElementById(\'p2-dist\').value=this.value;document.getElementById(\'p3-dist\').value=this.value;updateCalc()" style="padding:9px 12px;border:1.5px solid #bae6fd;border-radius:9px;font-size:13px;width:100%;background:#e0f2fe"/>';
+  out+='</div>';
+  out+='<div><label style="display:block;font-weight:600;font-size:12px;margin-bottom:3px">δ — Tasso medio occupazione auto</label>';
+  out+='<div style="font-size:10px;color:var(--muted);margin-bottom:4px">Valore normativo: 1,2 (D.I. 179/2021, All. 4).</div>';
+  out+='<input id="s-delta" type="number" step="0.1" value="'+(D.delta_occ||1.2)+'" oninput="D.delta_occ=this.value;updateCalc()" style="padding:9px 12px;border:1.5px solid #bae6fd;border-radius:9px;font-size:13px;width:100%;background:#e0f2fe"/>';
+  out+='</div>';
+  out+='<div><label style="display:block;font-weight:600;font-size:12px;margin-bottom:3px">Op — Giorni lavorativi/anno base</label>';
+  out+='<div style="font-size:10px;color:var(--muted);margin-bottom:4px">Standard italiano: ~220 gg. Usato come default in Proc. 1 e 2.</div>';
+  out+='<input id="s-giorni" type="number" value="'+(D.giorni_base||220)+'" oninput="D.giorni_base=this.value;var p1=document.getElementById(\'p1-giorni\');if(p1&&!p1.dataset.edited)p1.value=this.value;var p2=document.getElementById(\'p2-giorni\');if(p2&&!p2.dataset.edited)p2.value=this.value;updateCalc()" style="padding:9px 12px;border:1.5px solid #bae6fd;border-radius:9px;font-size:13px;width:100%;background:#e0f2fe"/>';
+  out+='</div>';
+  out+='</div>';
+  // Emission factors info
+  out+='<div style="margin-top:12px;padding-top:10px;border-top:1px solid #bae6fd;font-size:11px;color:#0369a1">';
+  out+='<strong>Fattori emissione ISPRA 2022 (privéauto media):</strong> CO₂: 161,72 g/km &nbsp;·&nbsp; NOx: 0,305 g/km &nbsp;·&nbsp; PM10: 0,031 g/km &nbsp;·&nbsp; <em>Fonte alternativa auto: emissioni specifiche da questionario</em>';
   out+='</div></div>';
-  out+='<div class="cbox" style="margin-bottom:14px"><div class="ctit2">Procedura 2 — Carpooling / Car sharing</div><div class="fg">';
-  out+='<div><label style="display:block;font-weight:600;font-size:13px;margin-bottom:3px">g) N corse condivise</label><input id="f-p2c" type="number" value="'+D.p2_corse+'" oninput="D.p2_corse=this.value;updateCalc()"/></div>';
-  out+='<div><label style="display:block;font-weight:600;font-size:13px;margin-bottom:3px">h) Distanza per corsa (km)</label><input id="f-p2d" type="number" value="'+D.p2_distanza+'" oninput="D.p2_distanza=this.value;updateCalc()"/></div>';
-  out+='<div><label style="display:block;font-weight:600;font-size:13px;margin-bottom:3px">c) Tasso occupazione</label><input id="f-p2o" type="number" step="0.1" value="'+D.p2_tasso_occ+'" oninput="D.p2_tasso_occ=this.value;updateCalc()"/></div>';
-  out+='<div><label style="display:block;font-weight:600;font-size:13px;margin-bottom:3px">i) Giorni/anno</label><input id="f-p2g" type="number" value="'+D.p2_giorni+'" oninput="D.p2_giorni=this.value;updateCalc()"/></div>';
+
+  // ── PROCEDURA 1 ──
+  out+='<div class="cbox" style="margin-bottom:16px">';
+  out+='<div class="ctit2">Procedura 1 — Smart working / TPL / Mobilità attiva</div>';
+  out+='<div class="cpar">Principio: emissioni evitate = (Ut / δ) × L × Op × Fe<sub>auto</sub> / 1000. Il mezzo alternativo è considerato a emissioni zero.</div>';
+  out+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">';
+  // Ut
+  out+='<div><label style="display:block;font-weight:600;font-size:12px;margin-bottom:3px">Ut — N° persone che smettono di usare l\'auto</label>';
+  out+='<div style="font-size:10px;color:var(--muted);margin-bottom:4px">Da Passaggio 6: persone disponibili al cambio modale.</div>';
+  out+='<input id="f-na" type="number" value="'+D.n_auto+'" oninput="D.n_auto=this.value;updateCalc()" style="padding:9px 12px;border:1.5px solid var(--border);border-radius:9px;font-size:13px;width:100%"/>';
+  out+='</div>';
+  // L proc1
+  out+='<div><label style="display:block;font-weight:600;font-size:12px;margin-bottom:3px">L — Percorrenza media A/R (km) <span style="color:#2563eb">🔗</span></label>';
+  out+='<div style="font-size:10px;color:#2563eb;margin-bottom:4px">Precompilato dal valore condiviso — sovrascrivibile.</div>';
+  out+='<input id="p1-dist" type="number" value="'+(num('dist_km')*2||'')+'" oninput="D.p1_dist_ar=this.value;updateCalc()" style="padding:9px 12px;border:1.5px solid #bae6fd;border-radius:9px;font-size:13px;width:100%;background:#f0f9ff"/>';
+  out+='</div>';
+  // δ readonly proc1
+  out+='<div><label style="display:block;font-weight:600;font-size:12px;margin-bottom:3px">δ — Tasso occupazione</label>';
+  out+='<div style="font-size:10px;color:var(--muted);margin-bottom:4px">Normativo: 1,2. Modificabile nel banner in alto.</div>';
+  out+='<input type="number" step="0.1" value="'+(D.delta_occ||1.2)+'" id="p1-delta" oninput="D.delta_occ=this.value;updateCalc()" style="padding:9px 12px;border:1.5px solid #bae6fd;border-radius:9px;font-size:13px;width:100%;background:#f0f9ff"/>';
+  out+='</div>';
+  // Op giorni
+  out+='<div><label style="display:block;font-weight:600;font-size:12px;margin-bottom:3px">Op — Giorni/anno effettivi maatregel <span style="color:#2563eb">🔗</span></label>';
+  out+='<div style="font-size:10px;color:#2563eb;margin-bottom:4px">Default: giorni lavorativi base. Adatta se la maatregel è parziale (es. 2gg/sett SW = ~88).</div>';
+  out+='<input id="p1-giorni" type="number" value="'+(D.p1_giorni||(D.giorni_base||220))+'" oninput="D.p1_giorni=this.value;this.dataset.edited=\'1\';updateCalc()" style="padding:9px 12px;border:1.5px solid #bae6fd;border-radius:9px;font-size:13px;width:100%;background:#f0f9ff"/>';
+  out+='</div>';
+  out+='</div>';
+  out+='<div style="margin-top:10px;background:#f0fdf4;border-radius:8px;padding:10px 14px;font-size:12.5px;color:#15803d;font-weight:600">';
+  out+='Risultato Proc. 1: CO₂ <span id="pc-p1-CO2">'+c.p1.CO2+'</span> kg/anno &nbsp;·&nbsp; NOx <span id="pc-p1-NOx">'+c.p1.NOx+'</span> kg/anno &nbsp;·&nbsp; PM10 <span id="pc-p1-PM10">'+c.p1.PM10+'</span> kg/anno';
   out+='</div></div>';
-  out+='<div class="cbox" style="margin-bottom:14px"><div class="ctit2">Procedura 3 — Navetta aziendale</div><div class="fg3">';
-  out+='<div><label style="display:block;font-weight:600;font-size:13px;margin-bottom:3px">a) N persone sottratte all\'auto</label><input id="f-p3p" type="number" value="'+D.p3_persone+'" oninput="D.p3_persone=this.value;updateCalc()"/></div>';
-  out+='<div><label style="display:block;font-weight:600;font-size:13px;margin-bottom:3px">c) Distanza utenti auto (km)</label><input id="f-p3da" type="number" value="'+D.p3_dist_auto+'" oninput="D.p3_dist_auto=this.value;updateCalc()"/></div>';
-  out+='<div><label style="display:block;font-weight:600;font-size:13px;margin-bottom:3px">d) N corse navetta/giorno</label><input id="f-p3v" type="number" value="'+D.p3_viaggi_giorno+'" oninput="D.p3_viaggi_giorno=this.value;updateCalc()"/></div>';
-  out+='<div><label style="display:block;font-weight:600;font-size:13px;margin-bottom:3px">e) Distanza navetta/corsa (km)</label><input id="f-p3dn" type="number" value="'+D.p3_dist_navetta+'" oninput="D.p3_dist_navetta=this.value;updateCalc()"/></div>';
-  out+='<div><label style="display:block;font-weight:600;font-size:13px;margin-bottom:3px">f) Giorni/anno navetta</label><input id="f-p3g" type="number" value="'+D.p3_giorni+'" oninput="D.p3_giorni=this.value;updateCalc()"/></div>';
+
+  // ── PROCEDURA 2 ──
+  out+='<div class="cbox" style="margin-bottom:16px">';
+  out+='<div class="ctit2">Procedura 2 — Carpooling / Car sharing</div>';
+  out+='<div class="cpar">Principio: riduzione emissioni per auto condivise. Le emissioni del mezzo condiviso vengono sottratte (se non elettrico).</div>';
+  out+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">';
+  // Nol
+  out+='<div><label style="display:block;font-weight:600;font-size:12px;margin-bottom:3px">Nol — N° corse condivise/giorno</label>';
+  out+='<div style="font-size:10px;color:var(--muted);margin-bottom:4px">Numero di viaggi carpooling o carsharing al giorno.</div>';
+  out+='<input id="f-p2c" type="number" value="'+D.p2_corse+'" oninput="D.p2_corse=this.value;updateCalc()" style="padding:9px 12px;border:1.5px solid var(--border);border-radius:9px;font-size:13px;width:100%"/>';
+  out+='</div>';
+  // kmnol
+  out+='<div><label style="display:block;font-weight:600;font-size:12px;margin-bottom:3px">kmnol — Distanza media per corsa A/R (km) <span style="color:#2563eb">🔗</span></label>';
+  out+='<div style="font-size:10px;color:#2563eb;margin-bottom:4px">Precompilato dal valore condiviso — sovrascrivibile.</div>';
+  out+='<input id="p2-dist" type="number" value="'+(num('dist_km')*2||'')+'" oninput="D.p2_distanza=(this.value/2);updateCalc()" style="padding:9px 12px;border:1.5px solid #bae6fd;border-radius:9px;font-size:13px;width:100%;background:#f0f9ff"/>';
+  out+='</div>';
+  // δ readonly proc2
+  out+='<div><label style="display:block;font-weight:600;font-size:12px;margin-bottom:3px">δ — Tasso occupazione</label>';
+  out+='<div style="font-size:10px;color:var(--muted);margin-bottom:4px">Normativo: 1,2. Modificabile nel banner in alto.</div>';
+  out+='<input type="number" step="0.1" value="'+(D.delta_occ||1.2)+'" id="p2-delta" oninput="D.delta_occ=this.value;updateCalc()" style="padding:9px 12px;border:1.5px solid #bae6fd;border-radius:9px;font-size:13px;width:100%;background:#f0f9ff"/>';
+  out+='</div>';
+  // Gs giorni
+  out+='<div><label style="display:block;font-weight:600;font-size:12px;margin-bottom:3px">Gs — Giorni/anno sistema condivisione <span style="color:#2563eb">🔗</span></label>';
+  out+='<div style="font-size:10px;color:#2563eb;margin-bottom:4px">Default: giorni lavorativi base.</div>';
+  out+='<input id="p2-giorni" type="number" value="'+(D.p2_giorni||(D.giorni_base||220))+'" oninput="D.p2_giorni=this.value;this.dataset.edited=\'1\';updateCalc()" style="padding:9px 12px;border:1.5px solid #bae6fd;border-radius:9px;font-size:13px;width:100%;background:#f0f9ff"/>';
+  out+='</div>';
+  out+='</div>';
+  out+='<div style="margin-top:10px;background:#f0fdf4;border-radius:8px;padding:10px 14px;font-size:12.5px;color:#15803d;font-weight:600">';
+  out+='Risultato Proc. 2: CO₂ <span id="pc-p2-CO2">'+c.p2.CO2+'</span> kg/anno &nbsp;·&nbsp; NOx <span id="pc-p2-NOx">'+c.p2.NOx+'</span> kg/anno &nbsp;·&nbsp; PM10 <span id="pc-p2-PM10">'+c.p2.PM10+'</span> kg/anno';
   out+='</div></div>';
-  out+='<div class="rbox"><div class="rtit">Risparmio emissioni — in tempo reale</div>';
-  out+='<table class="ct"><thead><tr><th>Procedura</th><th class="r">Utenti</th><th class="r">CO2 kg/a</th><th class="r">NOx kg/a</th><th class="r">PM10 kg/a</th></tr></thead><tbody>';
-  out+='<tr><td>1 SW/TPL/Attiva</td><td class="r" id="pc-p1-n">'+c.p1.n+'</td><td class="r" id="pc-p1-CO2">'+c.p1.CO2+'</td><td class="r" id="pc-p1-NOx">'+c.p1.NOx+'</td><td class="r" id="pc-p1-PM10">'+c.p1.PM10+'</td></tr>';
-  out+='<tr><td>2 Carpooling</td><td class="r" id="pc-p2-n">'+c.p2.n+'</td><td class="r" id="pc-p2-CO2">'+c.p2.CO2+'</td><td class="r" id="pc-p2-NOx">'+c.p2.NOx+'</td><td class="r" id="pc-p2-PM10">'+c.p2.PM10+'</td></tr>';
-  out+='<tr><td>3 Navetta</td><td class="r" id="pc-p3-n">'+c.p3.n+'</td><td class="r" id="pc-p3-CO2">'+c.p3.CO2+'</td><td class="r" id="pc-p3-NOx">'+c.p3.NOx+'</td><td class="r" id="pc-p3-PM10">'+c.p3.PM10+'</td></tr>';
-  out+='<tr class="tot"><td>TOTALE</td><td class="r" id="pc-tot-n">'+c.tot.n+'</td><td class="r" id="pc-tot-CO2">'+c.tot.CO2+'</td><td class="r" id="pc-tot-NOx">'+c.tot.NOx+'</td><td class="r" id="pc-tot-PM10">'+c.tot.PM10+'</td></tr>';
-  out+='</tbody></table></div></div>';
+
+  // ── PROCEDURA 3 ──
+  out+='<div class="cbox" style="margin-bottom:16px">';
+  out+='<div class="ctit2">Procedura 3 — Navetta aziendale</div>';
+  out+='<div class="cpar">Principio: emissioni evitate dall\'auto privata, meno le emissioni della navetta (Fe<sub>az</sub>). Inserire 0 se elettrica.</div>';
+  out+='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">';
+  // Ut navetta
+  out+='<div><label style="display:block;font-weight:600;font-size:12px;margin-bottom:3px">Ut — N° persone sottratte all\'auto</label>';
+  out+='<div style="font-size:10px;color:var(--muted);margin-bottom:4px">Dipendenti che usano la navetta invece dell\'auto.</div>';
+  out+='<input id="f-p3p" type="number" value="'+D.p3_persone+'" oninput="D.p3_persone=this.value;updateCalc()" style="padding:9px 12px;border:1.5px solid var(--border);border-radius:9px;font-size:13px;width:100%"/>';
+  out+='</div>';
+  // L navetta
+  out+='<div><label style="display:block;font-weight:600;font-size:12px;margin-bottom:3px">L — Percorrenza media utenti auto A/R (km) <span style="color:#2563eb">🔗</span></label>';
+  out+='<div style="font-size:10px;color:#2563eb;margin-bottom:4px">Precompilato dal valore condiviso — sovrascrivibile.</div>';
+  out+='<input id="p3-dist" type="number" value="'+(num('p3_dist_auto')||num('dist_km')*2||'')+'" oninput="D.p3_dist_auto=(this.value/2);updateCalc()" style="padding:9px 12px;border:1.5px solid #bae6fd;border-radius:9px;font-size:13px;width:100%;background:#f0f9ff"/>';
+  out+='</div>';
+  // viaggi navetta
+  out+='<div><label style="display:block;font-weight:600;font-size:12px;margin-bottom:3px">viaggi — N° corse navetta/giorno (A+R)</label>';
+  out+='<div style="font-size:10px;color:var(--muted);margin-bottom:4px">Es. 2 = 1 andata + 1 ritorno.</div>';
+  out+='<input id="f-p3v" type="number" value="'+(D.p3_viaggi_giorno||2)+'" oninput="D.p3_viaggi_giorno=this.value;updateCalc()" style="padding:9px 12px;border:1.5px solid var(--border);border-radius:9px;font-size:13px;width:100%"/>';
+  out+='</div>';
+  // kmviag
+  out+='<div><label style="display:block;font-weight:600;font-size:12px;margin-bottom:3px">kmviag — Distanza navetta per corsa (km)</label>';
+  out+='<div style="font-size:10px;color:var(--muted);margin-bottom:4px">Lunghezza del percorso della navetta per singola corsa.</div>';
+  out+='<input id="f-p3dn" type="number" value="'+D.p3_dist_navetta+'" oninput="D.p3_dist_navetta=this.value;updateCalc()" style="padding:9px 12px;border:1.5px solid var(--border);border-radius:9px;font-size:13px;width:100%"/>';
+  out+='</div>';
+  // Gs navetta
+  out+='<div><label style="display:block;font-weight:600;font-size:12px;margin-bottom:3px">Gs — Giorni/anno operatività navetta</label>';
+  out+='<div style="font-size:10px;color:var(--muted);margin-bottom:4px">Default: 220 giorni lavorativi.</div>';
+  out+='<input id="f-p3g" type="number" value="'+(D.p3_giorni||220)+'" oninput="D.p3_giorni=this.value;updateCalc()" style="padding:9px 12px;border:1.5px solid var(--border);border-radius:9px;font-size:13px;width:100%"/>';
+  out+='</div>';
+  out+='</div>';
+  out+='<div style="margin-top:10px;background:#f0fdf4;border-radius:8px;padding:10px 14px;font-size:12.5px;color:#15803d;font-weight:600">';
+  out+='Risultato Proc. 3: CO₂ <span id="pc-p3-CO2">'+c.p3.CO2+'</span> kg/anno &nbsp;·&nbsp; NOx <span id="pc-p3-NOx">'+c.p3.NOx+'</span> kg/anno &nbsp;·&nbsp; PM10 <span id="pc-p3-PM10">'+c.p3.PM10+'</span> kg/anno';
+  out+='</div></div>';
+
+  // ── TOTALE ──
+  out+='<div style="background:#0f172a;border-radius:12px;padding:16px 20px;display:grid;grid-template-columns:repeat(4,1fr);gap:12px">';
+  out+='<div><div style="font-size:10px;color:rgba(255,255,255,.5);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Utenti/Corse</div><div id="pc-tot-n" style="font-size:22px;font-weight:800;color:#fff">'+c.tot.n+'</div></div>';
+  out+='<div><div style="font-size:10px;color:rgba(255,255,255,.5);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">CO₂ kg/anno</div><div id="pc-tot-CO2" style="font-size:22px;font-weight:800;color:#4ade80">'+c.tot.CO2+'</div></div>';
+  out+='<div><div style="font-size:10px;color:rgba(255,255,255,.5);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">NOx kg/anno</div><div id="pc-tot-NOx" style="font-size:22px;font-weight:800;color:#4ade80">'+c.tot.NOx+'</div></div>';
+  out+='<div><div style="font-size:10px;color:rgba(255,255,255,.5);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">PM10 kg/anno</div><div id="pc-tot-PM10" style="font-size:22px;font-weight:800;color:#4ade80">'+c.tot.PM10+'</div></div>';
+  out+='</div>';
+  out+='</div>';
   return out;
 }
 function s8(){
