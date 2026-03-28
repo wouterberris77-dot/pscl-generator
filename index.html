@@ -91,33 +91,99 @@ table.ct tr.tot td{font-weight:700;color:#15803d;border-top:2px solid #86efac;bo
   .sidebar,.topbar,.nbtns,#fv,.ebar{display:none!important}
   #rv{display:block!important}
   .rw{box-shadow:none;border-radius:0}
-  body{background:#fff;margin:0;padding:0}.main{margin-left:0}
-  @page{margin:0;size:A4}
-  @page:first{margin:0}
-  *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color-adjust:exact!important}
-  /* Cover: exact één A4 pagina */
+  body{background:#fff;margin:0;padding:0}
+  .main{margin-left:0}
+
+  @page{margin:0;size:A4 portrait}
+
+  *{
+    -webkit-print-color-adjust:exact!important;
+    print-color-adjust:exact!important;
+    color-adjust:exact!important;
+  }
+
+  /* Cover: exact A4 */
   .cover-block{
-    width:210mm;
-    height:297mm;
-    max-height:297mm;
-    overflow:hidden;
-    page-break-after:always;
-    break-after:always;
-    margin:0;padding:0;
-    display:flex!important;
-    box-sizing:border-box;
+    width:210mm !important;
+    height:297mm !important;
+    max-height:297mm !important;
+    overflow:hidden !important;
+    page-break-after:always !important;
+    break-after:page !important;
+    margin:0 !important;
+    padding:0 !important;
+    position:relative !important;
   }
-  /* Alle overige content met nette marges */
+
+  /* Content wrapper met marges */
   .report-content{
-    padding:15mm 18mm;
+    padding:12mm 16mm !important;
     box-sizing:border-box;
   }
-  img{page-break-inside:avoid;break-inside:avoid;max-width:100%!important;display:block}
-  .print-block{page-break-inside:avoid;break-inside:avoid}
-  .ch-bar{page-break-after:avoid;break-after:avoid}
-  table{page-break-inside:avoid;break-inside:avoid}
-  .krow{page-break-inside:avoid;break-inside:avoid}
-  p{orphans:3;widows:3}
+
+  /* Hoofdstukbalk altijd bovenaan, nooit alleen */
+  .ch-bar{
+    page-break-before:auto;
+    page-break-after:avoid !important;
+    break-after:avoid !important;
+  }
+
+  /* Sectie-inhoud na hoofdstukbalk samen houden */
+  .rc-section{
+    page-break-inside:avoid;
+    break-inside:avoid;
+  }
+
+  /* Afbeeldingen nooit knippen */
+  img{
+    page-break-inside:avoid !important;
+    break-inside:avoid !important;
+    max-width:100% !important;
+    display:block !important;
+  }
+
+  /* Print-blokken (grafieken, tabellen) */
+  .print-block{
+    page-break-inside:avoid !important;
+    break-inside:avoid !important;
+    display:block !important;
+  }
+
+  /* Tabellen */
+  table{
+    page-break-inside:avoid !important;
+    break-inside:avoid !important;
+  }
+
+  /* KPI rij */
+  .krow{
+    page-break-inside:avoid !important;
+    break-inside:avoid !important;
+    display:flex !important;
+  }
+
+  /* Titels nooit onderaan pagina */
+  h1,h2,h3{
+    page-break-after:avoid !important;
+    break-after:avoid !important;
+  }
+
+  /* Paragraaf weesregels */
+  p{ orphans:3; widows:3; }
+
+  /* Elke grafiek-caption + afbeelding als één blok */
+  .img-block{
+    page-break-inside:avoid !important;
+    break-inside:avoid !important;
+    display:block !important;
+    margin-bottom:12px;
+  }
+
+  /* Forceer nieuwe pagina voor grote secties */
+  .page-break-before{
+    page-break-before:always !important;
+    break-before:page !important;
+  }
 }
 </style>
 </head>
@@ -748,16 +814,21 @@ function renderReport(){
   var ft="'"+STYLE.font_title+"',sans-serif",fb="'"+STYLE.font_body+"',sans-serif";
 
   function ip(dk,lbl){
-    var cap='<div class="print-block" style="font-size:12.5px;font-weight:700;color:'+acc+';border-left:3px solid '+acc+';padding-left:8px;margin:16px 0 5px;font-family:'+fb+'">'+lbl+'</div>';
-    if(D[dk]) return '<div class="print-block">'+cap+'<img src="'+D[dk]+'" style="width:100%;border-radius:8px;border:1px solid #e5e7eb;margin-bottom:14px"/></div>';
-    return '<div class="print-block">'+cap+'<div style="border:2px dashed #c7d2fe;border-radius:8px;background:#f8faff;padding:16px;text-align:center;color:#818cf8;font-size:12.5px;margin-bottom:14px">[Immagine non caricata]</div></div>';
+    var cap='<div style="font-size:12.5px;font-weight:700;color:'+acc+';border-left:3px solid '+acc+';padding-left:8px;margin:16px 0 5px;font-family:'+fb+'">'+lbl+'</div>';
+    var content=D[dk]
+      ?'<img src="'+D[dk]+'" style="width:100%;border-radius:8px;border:1px solid #e5e7eb;margin-bottom:4px"/>'
+      :'<div style="border:2px dashed #c7d2fe;border-radius:8px;background:#f8faff;padding:12px;text-align:center;color:#818cf8;font-size:12px;margin-bottom:4px">[Immagine non caricata]</div>';
+    return '<div class="img-block print-block">'+cap+content+'</div>';
   }
   function ip2(dk1,lbl1,dk2,lbl2){
-    return '<div class="print-block"><table style="width:100%;border-collapse:collapse;margin:4px 0"><tr><td style="width:50%;vertical-align:top;padding-right:10px">'+ip(dk1,lbl1)+'</td><td style="width:50%;vertical-align:top;padding-left:10px">'+ip(dk2,lbl2)+'</td></tr></table></div>';
+    return '<div class="print-block"><table style="width:100%;border-collapse:collapse;margin:4px 0"><tr>'
+      +'<td style="width:50%;vertical-align:top;padding-right:8px">'+ip(dk1,lbl1)+'</td>'
+      +'<td style="width:50%;vertical-align:top;padding-left:8px">'+ip(dk2,lbl2)+'</td>'
+      +'</tr></table></div>';
   }
-  function ch(n,t){ return '<div class="ch-bar" style="min-height:56px;display:flex;align-items:center;padding:0 52px;background:'+cbg+';gap:14px;font-family:'+ft+'"><div style="font-size:28px;font-weight:800;color:rgba(255,255,255,.25)">'+n+'</div><div style="font-size:16px;font-weight:700;color:'+ctxt+'">'+t+'</div></div>'; }
-  function rc(content){ return '<div style="padding:28px 52px;font-family:'+fb+'">'+content+'</div>'; }
-  function rh4(t){ return '<div style="font-size:13.5px;font-weight:700;color:'+acc+';margin:20px 0 7px;border-left:4px solid '+acc+';padding-left:9px;font-family:'+ft+'">'+t+'</div>'; }
+  function ch(n,t){ return '<div class="ch-bar" style="min-height:48px;display:flex;align-items:center;padding:0 52px;background:'+cbg+';gap:14px;font-family:'+ft+'"><div style="font-size:28px;font-weight:800;color:rgba(255,255,255,.25)">'+n+'</div><div style="font-size:16px;font-weight:700;color:'+ctxt+'">'+t+'</div></div>'; }
+  function rc(content){ return '<div class="rc-section" style="padding:20px 52px;font-family:'+fb+'">'+content+'</div>'; }
+  function rh4(t){ return '<div style="font-size:13px;font-weight:700;color:'+acc+';margin:18px 0 6px;border-left:4px solid '+acc+';padding-left:9px;font-family:'+ft+'">'+t+'</div>'; }
   function rp(t){ return '<p style="font-size:13px;line-height:1.85;margin-bottom:10px">'+t+'</p>'; }
   function krow(items){
     return '<div class="krow">'+items.map(function(it){return '<div style="flex:1;min-width:110px;background:#f8fafc;border-radius:9px;padding:12px 14px;border-left:4px solid '+it.c+'"><div style="font-size:24px;font-weight:800;color:'+it.c+';line-height:1">'+it.v+'</div><div style="font-size:11px;color:#6b7280;margin-top:3px;line-height:1.4">'+it.l+'</div></div>';}).join('')+'</div>';
@@ -834,7 +905,7 @@ function renderReport(){
   +ip2('img_p_remoto','Puo lavorare da remoto?','img_p_opzione','Quale opzione sarebbe piu giusta?')
   +ip('img_p_carpooling','Disponibilita al Carpooling?'))
 
-  +ch(3,'Parte Progettuale')
+  +ch(3,'Parte Progettuale')+'<div class="page-break-before">'
   +rc(rh4('3.1 Misure da Implementare nell\'Anno '+aN)
   +misureHtml()
   +rh4('3.2 Stima Riduzione Emissioni (Anno '+aN+')')
