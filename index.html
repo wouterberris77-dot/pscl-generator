@@ -91,17 +91,32 @@ table.ct tr.tot td{font-weight:700;color:#15803d;border-top:2px solid #86efac;bo
   .sidebar,.topbar,.nbtns,#fv,.ebar{display:none!important}
   #rv{display:block!important}
   .rw{box-shadow:none;border-radius:0}
-  body{background:#fff}.main{margin-left:0}
-  @page{margin:0}
+  body{background:#fff;margin:0;padding:0}.main{margin-left:0}
+  @page{margin:0;size:A4}
   @page:first{margin:0}
   *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color-adjust:exact!important}
+  /* Cover: exact één A4 pagina */
+  .cover-block{
+    width:210mm;
+    height:297mm;
+    max-height:297mm;
+    overflow:hidden;
+    page-break-after:always;
+    break-after:always;
+    margin:0;padding:0;
+    display:flex!important;
+    box-sizing:border-box;
+  }
+  /* Alle overige content met nette marges */
+  .report-content{
+    padding:15mm 18mm;
+    box-sizing:border-box;
+  }
   img{page-break-inside:avoid;break-inside:avoid;max-width:100%!important;display:block}
   .print-block{page-break-inside:avoid;break-inside:avoid}
   .ch-bar{page-break-after:avoid;break-after:avoid}
   table{page-break-inside:avoid;break-inside:avoid}
   .krow{page-break-inside:avoid;break-inside:avoid}
-  .cover-block{page-break-after:always;break-after:always;margin:0;padding:0}
-  .report-content{margin:1.5cm 1.8cm}
   p{orphans:3;widows:3}
 }
 </style>
@@ -773,7 +788,7 @@ function renderReport(){
     : 'background:'+hbg+';';
 
   $('rc').innerHTML=
-  '<div class="cover-block" style="'+coverBg+'min-height:100vh;width:100%;position:relative;display:flex;align-items:flex-end;font-family:'+ft+';box-sizing:border-box;">'
+  '<div class="cover-block" style="'+coverBg+'min-height:96vh;width:100%;position:relative;display:flex;align-items:flex-end;font-family:'+ft+';box-sizing:border-box;">'
   // dark overlay when image present
   +(D.img_cover?'<div style="position:absolute;inset:0;background:linear-gradient(to top, rgba(0,0,0,.75) 0%, rgba(0,0,0,.25) 60%, rgba(0,0,0,.1) 100%)"></div>':'')
   // content block bottom-left
@@ -860,7 +875,7 @@ function doWordExport(){
   var nT2=num('n_tpl') + +c.p1.n;
   var pA2=(nA2/tot*100).toFixed(1),pT2=(nT2/tot*100).toFixed(1);
   var svcs=[D.stazione&&'stazione ferroviaria',D.metro&&'metropolitana',D.bus&&'bus/tram',D.bike_sharing&&'bike sharing',D.car_sharing&&'car sharing',D.piste&&'piste ciclabili'].filter(Boolean);
-  var hbg=STYLE.col_header,htxt=STYLE.col_header_txt,cbg=STYLE.col_chapter,tbg=STYLE.col_table_head,ttxt=STYLE.col_table_head_txt,acc=STYLE.col_accent,ft=STYLE.font_title,fb=STYLE.font_body;
+  var hbg=STYLE.col_header,htxt=STYLE.col_header_txt,cbg=STYLE.col_chapter,ctxt=STYLE.col_chapter_txt,tbg=STYLE.col_table_head,ttxt=STYLE.col_table_head_txt,acc=STYLE.col_accent,ft=STYLE.font_title,fb=STYLE.font_body;
   function wi(dk,lbl){ var c2='<p style="font-size:10pt;font-weight:bold;color:'+acc+';border-left:3pt solid '+acc+';padding-left:6pt;margin:12pt 0 3pt">'+lbl+'</p>'; return c2+(D[dk]?'<img src="'+D[dk]+'" style="width:100%;max-width:600pt;display:block;margin-bottom:10pt"/>':"<p style='color:#818cf8;font-style:italic;font-size:10pt'>[Immagine non caricata]</p>"); }
   function wi2(dk1,lbl1,dk2,lbl2){ return '<table style="width:100%;border-collapse:collapse"><tr><td style="width:50%;vertical-align:top;padding-right:8pt">'+wi(dk1,lbl1)+'</td><td style="width:50%;vertical-align:top;padding-left:8pt">'+wi(dk2,lbl2)+'</td></tr></table>'; }
   function kpiW(items){ return '<table style="width:100%;border-collapse:collapse;margin:8pt 0"><tr>'+items.map(function(it){return '<td style="width:'+(100/items.length)+'%;padding:8pt 10pt;background:#f8fafc;border-left:3pt solid '+it.c+';vertical-align:top"><div style="font-size:18pt;font-weight:bold;color:'+it.c+';font-family:\''+ft+'\'">'+it.v+'</div><div style="font-size:9pt;color:#6b7280;margin-top:2pt">'+it.l+'</div></td>';}).join('')+'</tr></table>'; }
