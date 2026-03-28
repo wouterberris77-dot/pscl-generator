@@ -203,22 +203,22 @@ var MISURE_CATS = [
     {id:'m3',  titolo:'Sistema di Carpooling',                              assi:[1,4,5],   info:'Strumento digitale per organizzare viaggi condivisi casa-lavoro tra colleghi.\nRiduce il numero di veicoli in circolazione e i costi di trasporto.\nFavorisce la socializzazione e riduce le emissioni.'},
     {id:'m4',  titolo:'Nuovi posti auto',                                   assi:[5],       info:'Incremento dei posti auto disponibili presso la sede aziendale.\nMiglioramento della gestione degli spazi di parcheggio.\nMisura di supporto alla mobilita privata.'},
     {id:'m5',  titolo:'Convenzione con Parcheggio scambiatore',             assi:[5],       info:'Accordo con parcheggi di interscambio vicino a fermate TPL.\nConsente ai dipendenti di lasciare l\'auto e proseguire con i mezzi pubblici.\nRiduce il traffico nelle aree urbane congestionate.'},
-    {id:'m6',  titolo:'Tariffazione aree di sosta',                         assi:[1,5],     info:'Introduzione della tariffazione dei parcheggi aziendali.\nDisincentiva l\'uso dell\'auto privata per i tragitti casa-lavoro.\nI proventi possono finanziare misure di mobilita sostenibile.'},
+    {id:'m6',  titolo:'Tariffazione aree di sosta',                         assi:[1],       info:'Introduzione della tariffazione dei parcheggi aziendali.\nDisincentiva l\'uso dell\'auto privata per i tragitti casa-lavoro.\nI proventi possono finanziare misure di mobilita sostenibile.'},
     {id:'m7',  titolo:'Transizione all\'elettrico della flotta aziendale',   assi:[5],       info:'Sostituzione dei veicoli aziendali con versioni elettriche o ibride.\nRiduzione delle emissioni locali di CO2 e inquinanti.\nCompatibile con incentivi fiscali nazionali ed europei.'},
     {id:'m8',  titolo:'Meccanico per gonfiare le gomme delle auto private',  assi:[5],       info:'Servizio gratuito di gonfiaggio pneumatici per i dipendenti in sede.\nGomme correttamente gonfiate riducono i consumi di carburante.\nMisura semplice e a basso costo con impatto immediato.'},
-    {id:'m9',  titolo:'Programma di disincentivazione dell\'uso dell\'auto', assi:[1,2,3,5], info:'Insieme di azioni per ridurre l\'utilizzo dell\'auto privata.\nPuo includere incentivi economici, comunicazione e gamification.\nFavorisce il passaggio a modalita di trasporto piu sostenibili.'},
+    {id:'m9',  titolo:'Programma di disincentivazione dell\'uso dell\'auto', assi:[1,2,3], info:'Insieme di azioni per ridurre l\'utilizzo dell\'auto privata.\nPuo includere incentivi economici, comunicazione e gamification.\nFavorisce il passaggio a modalita di trasporto piu sostenibili.'},
     {id:'m10', titolo:'Installazione colonnine di ricarica elettriche',      assi:[5],       info:'Installazione di punti di ricarica per veicoli elettrici presso la sede.\nSupport al processo di transizione alla mobilita elettrica.\nPuo essere esteso a biciclette e monopattini elettrici.'},
     {id:'m11', titolo:'Incentivi per la mobilita auto/moto',                 assi:[5],       info:'Contributi economici per chi utilizza veicoli a basse emissioni.\nPuo includere rimborsi chilometrici o bonus per veicoli elettrici.\nStimola la transizione verso modalita di trasporto piu pulite.'}
   ]},
   {cat:'Trasporto Pubblico Locale (TPL)', items:[
-    {id:'m12', titolo:'Sistema di gestione abbonamenti TPL',        assi:[1,2,5], info:'Piattaforma aziendale per la gestione centralizzata degli abbonamenti ai mezzi pubblici.\nSemplifica l\'accesso e la rendicontazione degli abbonamenti per i dipendenti.\nRiduce i tempi amministrativi e favorisce l\'adozione del TPL.'},
+    {id:'m12', titolo:'Sistema di gestione abbonamenti TPL',        assi:[1,2], info:'Piattaforma aziendale per la gestione centralizzata degli abbonamenti ai mezzi pubblici.\nSemplifica l\'accesso e la rendicontazione degli abbonamenti per i dipendenti.\nRiduce i tempi amministrativi e favorisce l\'adozione del TPL.'},
     {id:'m13', titolo:'Rimborso sull\'acquisto di abbonamenti TPL', assi:[1,2,5], info:'Contributo economico aziendale per l\'acquisto di abbonamenti ai mezzi pubblici.\nRiduce il costo del trasporto pubblico per i dipendenti.\nIncentivo diretto al cambio modale dall\'auto privata al TPL.'},
     {id:'m14', titolo:'Incentivi per la mobilita TPL',              assi:[1,2,5], info:'Misure di incentivazione economica per l\'utilizzo del trasporto pubblico.\nPossono includere bonus, voucher o rimborsi parziali.\nAumentano l\'attrattivita del TPL rispetto all\'auto privata.'}
   ]},
   {cat:'Mobilita attiva (piedi e bici)', items:[
     {id:'m15', titolo:'Realizzazione postazioni o depositi per biciclette',  assi:[1,3,5], info:'Installazione di rastrelliere e depositi sicuri per biciclette.\nRiduce il rischio di furto e aumenta l\'attrattivita della mobilita ciclistica.\nComplementare all\'introduzione del Bike to Work.'},
     {id:'m16', titolo:'Finanziamento equipaggiamento per mobilita attiva',   assi:[1,2,5], info:'Contributi per l\'acquisto di biciclette, e-bike, caschi e accessori.\nRiduce la barriera economica all\'adozione della mobilita attiva.\nPuo essere abbinato a incentivi chilometrici.'},
-    {id:'m17', titolo:'Sistema di gestione mezzi come biciclette e e-bike',  assi:[1,2,5], info:'Piattaforma per la gestione di un parco bici aziendale a disposizione dei dipendenti.\nConsente prenotazioni, tracciamento e manutenzione dei mezzi.\nFavorisce l\'intermodalita con il TPL.'},
+    {id:'m17', titolo:'Sistema di gestione mezzi come biciclette e e-bike',  assi:[1,2], info:'Piattaforma per la gestione di un parco bici aziendale a disposizione dei dipendenti.\nConsente prenotazioni, tracciamento e manutenzione dei mezzi.\nFavorisce l\'intermodalita con il TPL.'},
     {id:'m18', titolo:'Incentivi chilometrici mobilita attiva (Bike to Work)',assi:[1,2,5], info:'Rimborso per ogni km percorso in bicicletta per recarsi al lavoro.\nPrevisto dalla normativa italiana (Legge di Bilancio).\nFavorisce uno stile di vita sano e riduce le emissioni.'}
   ]},
   {cat:'Lavoro da remoto', items:[
@@ -709,7 +709,9 @@ function renderReport(){
   var tot=(num('n_auto')+num('n_tpl')+num('n_attiva'))||1;
   var pA=(num('n_auto')/tot*100).toFixed(1),pT=(num('n_tpl')/tot*100).toFixed(1),pM=(num('n_attiva')/tot*100).toFixed(1);
   var aN=Number(D.anno)+1;
-  var nA2=Math.max(0,num('n_auto')-c.tot.n),nT2=num('n_tpl')+num('n_auto')-nA2;
+  var overstap=Math.min(num('n_auto'), +c.p1.n + +c.p2.n + +c.p3.n);
+  var nA2=Math.max(0, num('n_auto') - overstap);
+  var nT2=num('n_tpl') + +c.p1.n;
   var pA2=(nA2/tot*100).toFixed(1),pT2=(nT2/tot*100).toFixed(1);
   var svcs=[D.stazione&&'stazione ferroviaria',D.metro&&'metropolitana',D.bus&&'bus/tram',D.bike_sharing&&'bike sharing',D.car_sharing&&'car sharing',D.piste&&'piste ciclabili'].filter(Boolean);
   var hbg=STYLE.col_header,htxt=STYLE.col_header_txt,cbg=STYLE.col_chapter,ctxt=STYLE.col_chapter_txt,tbg=STYLE.col_table_head,ttxt=STYLE.col_table_head_txt,acc=STYLE.col_accent;
@@ -818,7 +820,9 @@ function doWordExport(){
   var tot=(num('n_auto')+num('n_tpl')+num('n_attiva'))||1;
   var pA=(num('n_auto')/tot*100).toFixed(1),pT=(num('n_tpl')/tot*100).toFixed(1),pM=(num('n_attiva')/tot*100).toFixed(1);
   var aN=Number(D.anno)+1;
-  var nA2=Math.max(0,num('n_auto')-c.tot.n),nT2=num('n_tpl')+num('n_auto')-nA2;
+  var overstapW=Math.min(num('n_auto'), +c.p1.n + +c.p2.n + +c.p3.n);
+  var nA2=Math.max(0, num('n_auto') - overstapW);
+  var nT2=num('n_tpl') + +c.p1.n;
   var pA2=(nA2/tot*100).toFixed(1),pT2=(nT2/tot*100).toFixed(1);
   var svcs=[D.stazione&&'stazione ferroviaria',D.metro&&'metropolitana',D.bus&&'bus/tram',D.bike_sharing&&'bike sharing',D.car_sharing&&'car sharing',D.piste&&'piste ciclabili'].filter(Boolean);
   var hbg=STYLE.col_header,htxt=STYLE.col_header_txt,cbg=STYLE.col_chapter,tbg=STYLE.col_table_head,ttxt=STYLE.col_table_head_txt,acc=STYLE.col_accent,ft=STYLE.font_title,fb=STYLE.font_body;
