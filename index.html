@@ -216,6 +216,54 @@ var MISURE_CATS=[
   ]}
 ];
 
+// ── SCORING ALGORITMO ──
+function scoreMisura(id){
+  var d=D;
+  var nAuto=num('n_auto'), tot=(num('n_auto')+num('n_tpl')+num('n_attiva'))||1;
+  var autoHigh=nAuto/tot>0.5;
+  var distShort=num('dist_km')<10, distMed=num('dist_km')<15, distLong=num('dist_km')>20, distVLong=num('dist_km')>25;
+  var propHigh=num('prop_pct')>40, propMed=num('prop_pct')>30;
+  var bigCo=num('totale')>100, medCo=num('totale')>50;
+  var hasTpl=d.bus||d.stazione||d.metro;
+  var hasBike=d.piste||d.bike_sharing;
+  var s=0;
+  switch(id){
+    case 'm1': if(autoHigh)s++;if(!d.navetta)s++;if(bigCo)s++;if(!d.stazione&&!d.metro)s++;break;
+    case 'm2': if(d.car_sharing)s+=2;if(autoHigh)s++;if(medCo)s++;break;
+    case 'm3': if(!d.carpooling)s++;if(autoHigh)s++;if(distLong)s++;if(medCo)s++;break;
+    case 'm4': s=0;break; // faciliterend, altijd laag
+    case 'm5': if(d.stazione)s+=2;else if(d.bus)s++;if(num('posti_auto')<10)s++;break;
+    case 'm6': if(num('posti_auto')>20)s++;if(autoHigh)s++;if(propMed)s++;break;
+    case 'm7': if(d.navetta)s+=2;if(bigCo)s++;break;
+    case 'm8': s=2;break; // altijd middel
+    case 'm9': if(autoHigh)s++;if(propHigh)s++;if(hasTpl)s++;break;
+    case 'm10': if(num('posti_auto')>0)s++;if(medCo)s++;break;
+    case 'm11': if(autoHigh)s++;if(distLong)s++;break;
+    case 'm12': if(hasTpl)s++;if(!d.tpl_incentivi)s++;if(medCo)s++;break;
+    case 'm13': if(hasTpl)s++;if(autoHigh)s++;if(!d.tpl_incentivi)s++;break;
+    case 'm14': if(hasTpl)s++;if(autoHigh)s++;if(!d.tpl_incentivi)s++;break;
+    case 'm15': if(d.piste)s+=2;if(num('posti_bici')<5)s++;if(distShort)s++;break;
+    case 'm16': if(d.piste)s++;if(!d.bike_work)s++;if(distMed)s++;break;
+    case 'm17': if(bigCo)s++;if(d.piste)s++;if(d.bike_sharing)s++;break;
+    case 'm18': if(d.piste)s++;if(!d.bike_work)s++;if(distMed)s++;if(propMed)s++;break;
+    case 'm19': if(!d.smart_working)s++;if(autoHigh)s++;if(distLong)s++;break;
+    case 'm20': if(!d.smart_working)s++;if(distVLong)s++;if(medCo)s++;break;
+    case 'm21': if(!d.smart_working)s++;if(distLong)s++;if(propMed)s++;break;
+    case 'm22': s=4;break; // altijd hoog
+    case 'm23': if(propHigh)s+=2;if(hasTpl||hasBike)s++;break;
+    case 'm24': if(d.piste)s++;if(d.bike_work)s++;break;
+    case 'm25': s=4;break; // altijd hoog
+    case 'm26': s=4;break; // altijd hoog
+    case 'm27': s=4;break; // altijd hoog
+    default: s=2;
+  }
+  if(s>=3)return 'alta';
+  if(s>=1)return 'media';
+  return 'bassa';
+}
+var SCORE_LABEL={alta:{txt:'Alta',bg:'#dcfce7',col:'#15803d',border:'#86efac'},media:{txt:'Media',bg:'#fef9c3',col:'#854d0e',border:'#fde047'},bassa:{txt:'Bassa',bg:'#fee2e2',col:'#991b1b',border:'#fca5a5'}};
+function scoreBadge(id){var sc=scoreMisura(id);var sl=SCORE_LABEL[sc];return '<span title="Probabilità di successo: '+sl.txt+'" style="display:inline-block;font-size:9px;font-weight:700;padding:1px 6px;border-radius:4px;background:'+sl.bg+';color:'+sl.col+';border:1px solid '+sl.border+';margin-left:5px;vertical-align:middle">'+sl.txt+'</span>';}
+
 function $(id){return document.getElementById(id);}
 function num(k){return Number(D[k])||0;}
 function fmtDate(s){if(!s)return '—';var p=s.split('-');return p.length===3?p[2]+'/'+p[1]+'/'+p[0]:s;}
@@ -610,7 +658,7 @@ function s6(){
       var dots=[1,2,3,4,5].map(function(a){return '<td style="text-align:center;padding:7px 4px;border-bottom:1px solid #f1f5f9">'+(m.assi.indexOf(a)!==-1?'<span style="color:#2563eb;font-size:16px">&#11044;</span>':'')+'</td>';}).join('');
       rows+='<tr id="mrow-'+m.id+'" onclick="toggleMisura(\''+m.id+'\')" style="cursor:pointer;'+(sel?'background:#eff6ff;':'')+'">';
       rows+='<td style="padding:8px 12px;border-bottom:1px solid #f1f5f9"><div class="chkbox" style="width:20px;height:20px;border-radius:5px;border:2px solid '+(sel?'#2563eb':'#d1d5db')+';background:'+(sel?'#2563eb':'#fff')+';display:flex;align-items:center;justify-content:center">'+(sel?'<svg width="12" height="12" viewBox="0 0 12 12"><polyline points="1.5,6 4.5,9 10.5,3" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>':'')+'</div></td>';
-      rows+='<td style="padding:8px 12px;border-bottom:1px solid #f1f5f9;font-size:13px">'+m.titolo+' <button onclick="showInfo(event,\''+m.id+'\')" style="margin-left:6px;width:17px;height:17px;border-radius:50%;border:1.5px solid #93c5fd;background:#eff6ff;color:#2563eb;font-size:10px;font-weight:800;cursor:pointer;vertical-align:middle;line-height:1">i</button></td>';
+      rows+='<td style="padding:8px 12px;border-bottom:1px solid #f1f5f9;font-size:13px">'+m.titolo+scoreBadge(m.id)+' <button onclick="showInfo(event,\''+m.id+'\')" style="margin-left:4px;width:17px;height:17px;border-radius:50%;border:1.5px solid #93c5fd;background:#eff6ff;color:#2563eb;font-size:10px;font-weight:800;cursor:pointer;vertical-align:middle;line-height:1">i</button></td>';
       rows+=dots+'</tr>';
     });
   });
@@ -625,6 +673,13 @@ function s6(){
   var out='<div class="card"><div class="sbadge">Passaggio 8</div><div class="ctit">Misure da Implementare</div>';
   out+='<div class="csub">Seleziona le misure da adottare nell\'anno '+aN+'.</div>';
   out+='<div style="background:#eff6ff;border-radius:10px;padding:10px 16px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between"><span style="font-size:13px;color:#1d4ed8;font-weight:600">Misure selezionate: <strong id="nsel-count">'+D.misure_sel.length+'</strong></span><button onclick="clearMisure()" style="padding:5px 14px;border-radius:7px;border:1.5px solid #bfdbfe;background:#fff;color:#2563eb;font-size:12px;font-weight:700;cursor:pointer">Deseleziona tutte</button></div>';
+  out+='<div style="background:#f8fafc;border:1px solid var(--border);border-radius:10px;padding:10px 16px;margin-bottom:12px;display:flex;align-items:center;gap:16px;flex-wrap:wrap">';
+  out+='<span style="font-size:12px;font-weight:700;color:#374151">Probabilità di successo:</span>';
+  out+='<span style="font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px;background:#dcfce7;color:#15803d;border:1px solid #86efac">Alta</span>';
+  out+='<span style="font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px;background:#fef9c3;color:#854d0e;border:1px solid #fde047">Media</span>';
+  out+='<span style="font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px;background:#fee2e2;color:#991b1b;border:1px solid #fca5a5">Bassa</span>';
+  out+='<span style="font-size:11px;color:#6b7280">— calcolata in base a dati strutturali e offerta di trasporto inseriti</span>';
+  out+='</div>';
   out+='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px"><thead><tr style="border-bottom:2px solid #e5e7eb"><th style="width:36px;padding:8px 12px"></th><th style="padding:8px 12px;text-align:left;font-size:12px">Misura</th>';
   out+=[1,2,3,4,5].map(function(a){return '<th style="text-align:center;padding:8px 6px;font-size:11px;color:#2563eb">Asse '+a+'</th>';}).join('');
   out+='</tr></thead><tbody>'+rows+'</tbody></table></div>';
@@ -648,8 +703,8 @@ function s7(){
   out+='<div style="font-weight:700;font-size:13px;color:#0369a1;margin-bottom:10px">Valori condivisi</div>';
   out+='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px">';
   out+='<div><label style="display:block;font-weight:600;font-size:12px;margin-bottom:3px">L — Percorrenza A/R (km)</label><div style="font-size:10px;color:var(--muted);margin-bottom:4px">Da Passaggio 6 (sola andata × 2)</div><input id="s-dist" type="number" value="'+(num('dist_km')*2||'')+'" oninput="var v=this.value;D.dist_km=(v/2);D.p1_dist_ar=v;D.p2_distanza=(v/2);D.p3_dist_auto=(v/2);var p1=document.getElementById(\'p1-dist\');if(p1)p1.value=v;var p2=document.getElementById(\'p2-dist\');if(p2)p2.value=v;var p3=document.getElementById(\'p3-dist\');if(p3)p3.value=v;updateCalc()" style="padding:9px 12px;border:1.5px solid #bae6fd;border-radius:9px;font-size:13px;width:100%;background:#e0f2fe"/></div>';
-  out+='<div><label style="display:block;font-weight:600;font-size:12px;margin-bottom:3px">δ — Tasso occupazione auto</label><div style="font-size:10px;color:var(--muted);margin-bottom:4px">Normativo: 1,2</div><input id="s-delta" type="number" step="0.1" value="'+(D.delta_occ||1.2)+'" oninput="D.delta_occ=this.value;updateCalc()" style="padding:9px 12px;border:1.5px solid #bae6fd;border-radius:9px;font-size:13px;width:100%;background:#e0f2fe"/></div>';
-  out+='<div><label style="display:block;font-weight:600;font-size:12px;margin-bottom:3px">Op — Giorni lavorativi/anno</label><div style="font-size:10px;color:var(--muted);margin-bottom:4px">Standard: ~220 gg</div><input id="s-giorni" type="number" value="'+(D.giorni_base||220)+'" oninput="D.giorni_base=this.value;var p1=document.getElementById(\'p1-giorni\');if(p1&&!p1.dataset.edited)p1.value=this.value;var p2=document.getElementById(\'p2-giorni\');if(p2&&!p2.dataset.edited)p2.value=this.value;updateCalc()" style="padding:9px 12px;border:1.5px solid #bae6fd;border-radius:9px;font-size:13px;width:100%;background:#e0f2fe"/></div>';
+  out+='<div><label style="display:block;font-weight:600;font-size:12px;margin-bottom:3px">δ — Tasso occupazione auto</label><div style="font-size:10px;color:var(--muted);margin-bottom:4px">Normativo: 1,2</div><input id="s-delta" type="number" step="0.1" value="'+(D.delta_occ||1.2)+'" oninput="D.delta_occ=this.value;var p1d=document.getElementById(\'p1-delta\');if(p1d)p1d.value=this.value;var p2d=document.getElementById(\'p2-delta\');if(p2d)p2d.value=this.value;updateCalc()" style="padding:9px 12px;border:1.5px solid #bae6fd;border-radius:9px;font-size:13px;width:100%;background:#e0f2fe"/></div>';
+  out+='<div><label style="display:block;font-weight:600;font-size:12px;margin-bottom:3px">Op — Giorni lavorativi/anno</label><div style="font-size:10px;color:var(--muted);margin-bottom:4px">Standard: ~220 gg</div><input id="s-giorni" type="number" value="'+(D.giorni_base||220)+'" oninput="D.giorni_base=this.value;D.p1_giorni=this.value;D.p2_giorni=this.value;var p1=document.getElementById(\'p1-giorni\');if(p1)p1.value=this.value;var p2=document.getElementById(\'p2-giorni\');if(p2)p2.value=this.value;updateCalc()" style="padding:9px 12px;border:1.5px solid #bae6fd;border-radius:9px;font-size:13px;width:100%;background:#e0f2fe"/></div>';
   out+='</div><div style="margin-top:10px;font-size:11px;color:#0369a1;border-top:1px solid #bae6fd;padding-top:8px"><strong>Fattori ISPRA 2022:</strong> CO₂ 161,72 g/km · NOx 0,305 g/km · PM10 0,031 g/km</div></div>';
 
   // ── PROC 1 ──
